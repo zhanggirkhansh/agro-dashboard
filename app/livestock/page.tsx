@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
