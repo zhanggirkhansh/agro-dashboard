@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -17,7 +18,9 @@ export default async function Home() {
   ] = await Promise.all([
     supabase.from("livestock").select("id, status"),
     supabase.from("batches").select("id, status, batch_name"),
-    supabase.from("expenses").select("id, amount, expense_date, category, batch, comment"),
+    supabase
+      .from("expenses")
+      .select("id, amount, expense_date, category, batch, comment"),
     supabase.from("sales").select("id, total_amount, sale_date"),
     supabase.from("weighings").select("id, weighing_date, weight"),
     supabase.from("feed").select("id, feed_name, quantity, feed_date"),
@@ -133,7 +136,7 @@ export default async function Home() {
         actionLabel="+ Быстрое действие"
       />
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard
             key={stat.title}
@@ -144,12 +147,9 @@ export default async function Home() {
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
-          <SectionCard
-            eyebrow="Динамика"
-            title="Обзор привеса"
-          >
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <SectionCard eyebrow="Динамика" title="Обзор привеса">
             <div className="mb-4 flex justify-end">
               <span className="rounded-full bg-[#edf5ee] px-3 py-1 text-sm text-[#2f6a4f]">
                 По текущим данным
@@ -159,16 +159,13 @@ export default async function Home() {
           </SectionCard>
         </div>
 
-        <SectionCard
-          eyebrow="Расходы"
-          title="Структура затрат"
-        >
+        <SectionCard eyebrow="Расходы" title="Структура затрат">
           <ExpensesChart />
         </SectionCard>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard
             eyebrow="Последние действия"
             title="Журнал операций"

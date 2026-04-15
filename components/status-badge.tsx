@@ -4,19 +4,31 @@ type StatusBadgeProps = {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const styles: Record<string, string> = {
-    "Активный": "bg-[#edf5ee] text-[#2f6a4f]",
-    "Активный откорм": "bg-[#edf5ee] text-[#2f6a4f]",
-    "Набор массы": "bg-[#fff7e8] text-[#b7791f]",
-    "Готовится к продаже": "bg-[#eef2ff] text-[#4f46e5]",
-    "Почти готова": "bg-[#eef2ff] text-[#4f46e5]",
-    "Продан": "bg-[#f3f4f6] text-[#4b5563]",
+    "Активный":
+      "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+    "Активный откорм":
+      "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+
+    "Набор массы":
+      "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+
+    "Готовится к продаже":
+      "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
+    "Почти готова":
+      "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
+
+    "Продан":
+      "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
   };
 
   return (
     <span
-      className={`rounded-full px-3 py-1 text-sm font-medium ${
-        styles[status] ?? "bg-[#f3f4f6] text-[#4b5563]"
-      }`}
+      className={`
+        inline-flex items-center
+        rounded-full px-3 py-1 text-xs font-medium
+        transition-all duration-200
+        ${styles[status] ?? "bg-slate-100 text-slate-700 ring-1 ring-slate-200"}
+      `}
     >
       {status}
     </span>

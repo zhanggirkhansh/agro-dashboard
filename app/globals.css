@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* === MOBILE UX УЛУЧШЕНИЯ === */
+
+/* Плавные нажатия (как в приложениях) */
+button,
+a {
+  transition: all 0.15s ease;
+}
+
+button:active,
+a:active {
+  transform: scale(0.97);
+}
+
+/* Убираем серую подсветку при тапе (очень важно для iPhone) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Плавный скролл */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Улучшение скролла на iOS */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Чуть приятнее инпуты на мобилке */
+input,
+select,
+textarea {
+  font-size: 16px; /* убирает zoom на iPhone */
+}

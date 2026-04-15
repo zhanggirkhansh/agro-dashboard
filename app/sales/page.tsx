@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import Link from "next/link";
+
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -34,21 +34,14 @@ export default async function SalesPage() {
 
   return (
     <section>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <p className="text-sm text-[#6b7280]">Реализация животных</p>
-          <h2 className="mt-1 text-3xl font-semibold">Продажи</h2>
-        </div>
+      <PageHeader
+        eyebrow="Реализация животных"
+        title="Продажи"
+        actionLabel="+ Продать животное"
+        actionHref="/sales/new"
+      />
 
-        <Link
-          href="/sales/new"
-          className="rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
-        >
-          + Продать животное
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         <StatCard title="Всего продаж" value={String(totalSales)} />
         <StatCard
           title="Общая выручка"
@@ -89,7 +82,7 @@ export default async function SalesPage() {
                     </p>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+                  <div className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
                     <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                       <p className="text-[#6b7280]">Дата продажи</p>
                       <p className="mt-1 font-medium">{sale.sale_date || "—"}</p>

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -50,7 +51,7 @@ export default async function LivestockPage() {
 
   return (
     <section>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-[#6b7280]">Раздел учета КРС</p>
           <h2 className="mt-1 text-3xl font-semibold">Поголовье</h2>
@@ -58,21 +59,21 @@ export default async function LivestockPage() {
 
         <Link
           href="/livestock/new"
-          className="rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
+          className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
         >
           + Добавить животное
         </Link>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Всего животных" value={String(totalAnimals)} />
         <StatCard title="Активных" value={String(activeAnimals)} />
         <StatCard title="На продаже" value={String(sellingAnimals)} />
         <StatCard title="Средний вес" value={`${avgWeight} кг`} />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard
             title="Список животных"
             eyebrow="Реальные данные из Supabase"

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
+
 import Link from "next/link";
-import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import { supabase } from "@/lib/supabase";
@@ -40,7 +40,7 @@ export default async function FeedPage() {
 
   return (
     <section>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-[#6b7280]">Учет кормов</p>
           <h2 className="mt-1 text-3xl font-semibold">Корма</h2>
@@ -48,13 +48,13 @@ export default async function FeedPage() {
 
         <Link
           href="/feed/new"
-          className="rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
+          className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
         >
           + Добавить корм
         </Link>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Всего записей" value={String(totalRecords)} />
         <StatCard title="Общий объем" value={`${totalQuantity} ед.`} />
         <StatCard
@@ -64,8 +64,8 @@ export default async function FeedPage() {
         <StatCard title="Последняя дата" value={String(lastDate)} />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard
             title="История кормов"
             eyebrow="Реальные данные из Supabase"
@@ -85,7 +85,7 @@ export default async function FeedPage() {
                     key={item.id}
                     className="rounded-2xl border border-[#ebf0e6] bg-[#fcfdfb] p-4"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-lg font-semibold">{item.feed_name}</p>
                         <p className="mt-1 text-sm text-[#6b7280]">
@@ -98,7 +98,7 @@ export default async function FeedPage() {
                       </p>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+                    <div className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
                       <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                         <p className="text-[#6b7280]">Дата</p>
                         <p className="mt-1 font-medium">{item.feed_date || "—"}</p>

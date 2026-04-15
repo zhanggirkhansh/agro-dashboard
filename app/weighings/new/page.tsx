@@ -90,7 +90,9 @@ export default function NewWeighingPage() {
 
     if (updateError) {
       console.error(updateError);
-      setError("Взвешивание сохранено, но не удалось обновить текущий вес животного.");
+      setError(
+        "Взвешивание сохранено, но не удалось обновить текущий вес животного."
+      );
       setLoading(false);
       return;
     }
@@ -111,12 +113,12 @@ export default function NewWeighingPage() {
         actionLabel="Новый замер"
       />
 
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard title="Форма взвешивания" eyebrow="Новая запись">
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium">
                     Животное
                   </label>
@@ -167,7 +169,7 @@ export default function NewWeighingPage() {
                   />
                 </div>
 
-                <div className="col-span-2">
+                <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium">
                     Комментарий
                   </label>
@@ -182,7 +184,7 @@ export default function NewWeighingPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
                   disabled={loading}
@@ -223,7 +225,8 @@ export default function NewWeighingPage() {
             <div className="rounded-2xl bg-[#f8faf7] p-4">
               <p className="font-medium">Обновление системы</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                После нового взвешивания текущий вес в карточке животного обновится автоматически.
+                После нового взвешивания текущий вес в карточке животного
+                обновится автоматически.
               </p>
             </div>
           </div>

@@ -99,11 +99,11 @@ export default function NewLivestockPage() {
         actionLabel="Новая запись"
       />
 
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard title="Карточка животного" eyebrow="Форма ввода">
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium">
                     Код животного
@@ -195,7 +195,7 @@ export default function NewLivestockPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
                   disabled={loading}

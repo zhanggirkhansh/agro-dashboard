@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
-import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
@@ -33,7 +34,7 @@ export default async function BatchesPage() {
 
   return (
     <section>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-[#6b7280]">Управление циклами откорма</p>
           <h2 className="mt-1 text-3xl font-semibold">Партии</h2>
@@ -41,13 +42,13 @@ export default async function BatchesPage() {
 
         <Link
           href="/batches/new"
-          className="rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
+          className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
         >
           + Создать партию
         </Link>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Всего партий" value={String(totalBatches)} />
         <StatCard title="Активный откорм" value={String(activeBatches)} />
         <StatCard title="Готовы к продаже" value={String(readyBatches)} />
@@ -57,9 +58,12 @@ export default async function BatchesPage() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
-          <SectionCard title="Текущие партии" eyebrow="Реальные данные из Supabase">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <SectionCard
+            title="Текущие партии"
+            eyebrow="Реальные данные из Supabase"
+          >
             {error ? (
               <div className="rounded-2xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]">
                 Ошибка загрузки партий.
@@ -69,7 +73,7 @@ export default async function BatchesPage() {
                 Пока партий нет. Создай первую запись.
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {safeBatches.map((batch) => {
                   const gain =
                     batch.start_weight != null && batch.current_weight != null
@@ -91,17 +95,19 @@ export default async function BatchesPage() {
                         <StatusBadge status={batch.status || "Продан"} />
                       </div>
 
-                      <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                      <div className="mt-5 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Количество голов</p>
                           <p className="mt-1 font-semibold">{batch.heads ?? "—"}</p>
                         </div>
+
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Привес</p>
                           <p className="mt-1 font-semibold text-[#2f6a4f]">
                             {gain != null ? `+${gain} кг` : "—"}
                           </p>
                         </div>
+
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Стартовый вес</p>
                           <p className="mt-1 font-semibold">
@@ -110,6 +116,7 @@ export default async function BatchesPage() {
                               : "—"}
                           </p>
                         </div>
+
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Текущий вес</p>
                           <p className="mt-1 font-semibold">
@@ -118,6 +125,7 @@ export default async function BatchesPage() {
                               : "—"}
                           </p>
                         </div>
+
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Расходы</p>
                           <p className="mt-1 font-semibold">
@@ -126,6 +134,7 @@ export default async function BatchesPage() {
                               : "—"}
                           </p>
                         </div>
+
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Прогноз прибыли</p>
                           <p className="mt-1 font-semibold text-[#2f6a4f]">
@@ -136,13 +145,14 @@ export default async function BatchesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-5 flex gap-3">
+                      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                         <Link
                           href={`/batches/${batch.id}`}
                           className="flex-1 rounded-2xl bg-[#1f4d3a] px-4 py-3 text-center font-medium text-white hover:opacity-90"
                         >
                           Открыть партию
                         </Link>
+
                         <button className="rounded-2xl bg-white px-4 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]">
                           Изменить
                         </button>

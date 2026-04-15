@@ -125,11 +125,11 @@ export default function NewFeedPage() {
         actionLabel="Новая запись"
       />
 
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard title="Запись по корму" eyebrow="Форма ввода">
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium">
                     Название корма
@@ -177,7 +177,7 @@ export default function NewFeedPage() {
                   >
                     <option value="кг">кг</option>
                     <option value="т">т</option>
-                    <option value="мешок">мешок</option>ё
+                    <option value="мешок">мешок</option>
                     <option value="рулон">рулон</option>
                   </select>
                 </div>
@@ -229,7 +229,7 @@ export default function NewFeedPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
                   disabled={loading}
@@ -261,14 +261,16 @@ export default function NewFeedPage() {
             <div className="rounded-2xl bg-[#f8faf7] p-4">
               <p className="font-medium">Авторасход</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Если указана стоимость, запись по корму автоматически попадет и в расходы.
+                Если указана стоимость, запись по корму автоматически попадет и
+                в расходы.
               </p>
             </div>
 
             <div className="rounded-2xl bg-[#f8faf7] p-4">
               <p className="font-medium">Без дублей</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Такой расход вручную в разделе «Расходы» повторно добавлять не нужно.
+                Такой расход вручную в разделе «Расходы» повторно добавлять не
+                нужно.
               </p>
             </div>
           </div>

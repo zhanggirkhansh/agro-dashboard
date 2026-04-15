@@ -35,16 +35,16 @@ export default function SettingsPage() {
         actionLabel="Сохранить изменения"
       />
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard key={stat.title} title={stat.title} value={stat.value} />
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-5">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="space-y-5 xl:col-span-2">
           <SectionCard title="Основные параметры" eyebrow="Общие настройки">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium">
                   Название хозяйства
@@ -89,8 +89,11 @@ export default function SettingsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Категории расходов" eyebrow="Финансовая структура">
-            <div className="grid grid-cols-2 gap-3">
+          <SectionCard
+            title="Категории расходов"
+            eyebrow="Финансовая структура"
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {expenseCategories.map((item) => (
                 <div
                   key={item}
@@ -103,7 +106,7 @@ export default function SettingsPage() {
           </SectionCard>
 
           <SectionCard title="Типы кормов" eyebrow="Кормовая база">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {feedTypes.map((item) => (
                 <div
                   key={item}
@@ -116,7 +119,7 @@ export default function SettingsPage() {
           </SectionCard>
 
           <SectionCard title="Статусы животных" eyebrow="Логика учета">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {animalStatuses.map((item) => (
                 <div
                   key={item}
