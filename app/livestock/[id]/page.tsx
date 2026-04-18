@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -22,22 +24,24 @@ export default async function AnimalPage({ params }: PageProps) {
     );
   }
 
-  const [{ data: animal, error: animalError }, { data: weighings, error: weighingsError }] =
-    await Promise.all([
-      supabase
-        .from("livestock")
-        .select(
-          "id, animal_code, age, status, batch, start_weight, current_weight"
-        )
-        .eq("id", animalId)
-        .single(),
+  const [
+    { data: animal, error: animalError },
+    { data: weighings, error: weighingsError },
+  ] = await Promise.all([
+    supabase
+      .from("livestock")
+      .select(
+        "id, animal_code, age, status, batch, start_weight, current_weight"
+      )
+      .eq("id", animalId)
+      .single(),
 
-      supabase
-        .from("weighings")
-        .select("id, weight, weighing_date, comment")
-        .eq("animal_id", animalId)
-        .order("weighing_date", { ascending: true }),
-    ]);
+    supabase
+      .from("weighings")
+      .select("id, weight, weighing_date, comment")
+      .eq("animal_id", animalId)
+      .order("weighing_date", { ascending: true }),
+  ]);
 
   if (animalError || !animal) {
     return (
@@ -73,7 +77,7 @@ export default async function AnimalPage({ params }: PageProps) {
         title={`Животное ${animal.animal_code || animal.id}`}
       />
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Текущий вес" value={`${currentWeight} кг`} />
         <StatCard title="Привес" value={`${gain >= 0 ? "+" : ""}${gain} кг`} />
         <StatCard
@@ -83,8 +87,8 @@ export default async function AnimalPage({ params }: PageProps) {
         <StatCard title="Статус" value={animal.status || "Активный"} />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <SectionCard title="Динамика веса" eyebrow="История измерений">
             {chartData.length === 0 ? (
               <div className="rounded-2xl bg-[#f8faf7] px-4 py-6 text-sm text-[#6b7280]">
@@ -97,7 +101,7 @@ export default async function AnimalPage({ params }: PageProps) {
         </div>
 
         <SectionCard title="Информация" eyebrow="Основные данные">
-          <div className="space-y-4 text-sm">
+          <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 xl:grid-cols-1">
             <div>
               <p className="text-[#6b7280]">ID</p>
               <p className="font-medium">{animal.id}</p>
@@ -157,18 +161,22 @@ export default async function AnimalPage({ params }: PageProps) {
               {weighings!.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-2xl border border-[#ebf0e6] bg-white p-4"
+                  className="rounded-2xl border border-[#ebf0e6] bg-white p-4"
                 >
-                  <div>
-                    <p className="font-medium">
-                      {new Date(item.weighing_date).toLocaleDateString("ru-RU")}
-                    </p>
-                    <p className="mt-1 text-sm text-[#6b7280]">
-                      {item.comment || "Без комментария"}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-medium">
+                        {new Date(item.weighing_date).toLocaleDateString("ru-RU")}
+                      </p>
+                      <p className="mt-1 text-sm text-[#6b7280]">
+                        {item.comment || "Без комментария"}
+                      </p>
+                    </div>
+
+                    <p className="font-semibold text-[#1f4d3a]">
+                      {item.weight} кг
                     </p>
                   </div>
-
-                  <p className="font-semibold">{item.weight} кг</p>
                 </div>
               ))}
             </div>

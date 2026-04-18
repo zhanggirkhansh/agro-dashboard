@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -56,31 +58,33 @@ export default async function BatchDetailsPage({ params }: Props) {
 
   return (
     <section>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-[#6b7280]">Детальная карточка партии</p>
-          <h2 className="mt-1 text-3xl font-semibold">{batch.batch_name}</h2>
+          <h2 className="mt-1 break-words text-3xl font-semibold">
+            {batch.batch_name}
+          </h2>
         </div>
 
         <Link
           href="/batches"
-          className="rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+          className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
         >
           ← Назад к партиям
         </Link>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Голов в партии" value={String(batch.heads ?? 0)} />
         <StatCard title="Животных в базе" value={String(safeAnimals.length)} />
         <StatCard title="Средний текущий вес" value={`${avgCurrentWeight} кг`} />
         <StatCard title="Суммарный привес" value={`+${totalGain} кг`} />
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-5">
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div className="space-y-5 xl:col-span-2">
           <SectionCard title="Информация о партии" eyebrow="Основные данные">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
               <div className="rounded-2xl bg-[#f8faf7] p-4">
                 <p className="text-[#6b7280]">Название</p>
                 <p className="mt-1 text-lg font-semibold">{batch.batch_name}</p>
@@ -137,58 +141,120 @@ export default async function BatchDetailsPage({ params }: Props) {
                 В этой партии пока нет животных.
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-[#ebf0e6]">
-                <table className="min-w-full text-left">
-                  <thead className="bg-[#f8faf7] text-sm text-[#6b7280]">
-                    <tr>
-                      <th className="px-4 py-3">Код</th>
-                      <th className="px-4 py-3">Возраст</th>
-                      <th className="px-4 py-3">Стартовый вес</th>
-                      <th className="px-4 py-3">Текущий вес</th>
-                      <th className="px-4 py-3">Привес</th>
-                      <th className="px-4 py-3">Статус</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {safeAnimals.map((animal) => {
-                      const gain =
-                        animal.start_weight != null &&
-                        animal.current_weight != null
-                          ? Number(animal.current_weight) -
-                            Number(animal.start_weight)
-                          : null;
+              <>
+                {/* MOBILE CARDS */}
+                <div className="space-y-4 md:hidden">
+                  {safeAnimals.map((animal) => {
+                    const gain =
+                      animal.start_weight != null &&
+                      animal.current_weight != null
+                        ? Number(animal.current_weight) -
+                          Number(animal.start_weight)
+                        : null;
 
-                      return (
-                        <tr
-                          key={animal.id}
-                          className="border-t border-[#ebf0e6] bg-white hover:bg-[#fbfcfa]"
-                        >
-                          <td className="px-4 py-4 font-medium">
-                            {animal.animal_code}
-                          </td>
-                          <td className="px-4 py-4">{animal.age || "—"}</td>
-                          <td className="px-4 py-4">
-                            {animal.start_weight != null
-                              ? `${animal.start_weight} кг`
-                              : "—"}
-                          </td>
-                          <td className="px-4 py-4">
-                            {animal.current_weight != null
-                              ? `${animal.current_weight} кг`
-                              : "—"}
-                          </td>
-                          <td className="px-4 py-4 font-medium text-[#2f6a4f]">
-                            {gain != null ? `+${gain} кг` : "—"}
-                          </td>
-                          <td className="px-4 py-4">
-                            <StatusBadge status={animal.status || "Продан"} />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                    return (
+                      <div
+                        key={animal.id}
+                        className="rounded-2xl border border-[#ebf0e6] bg-white p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-semibold">
+                              {animal.animal_code || "—"}
+                            </p>
+                            <p className="mt-1 text-sm text-[#6b7280]">
+                              Возраст: {animal.age || "—"}
+                            </p>
+                          </div>
+
+                          <StatusBadge status={animal.status || "Продан"} />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                          <div className="rounded-xl bg-[#f8faf7] p-3">
+                            <p className="text-[#6b7280]">Стартовый вес</p>
+                            <p className="mt-1 font-medium">
+                              {animal.start_weight != null
+                                ? `${animal.start_weight} кг`
+                                : "—"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-[#f8faf7] p-3">
+                            <p className="text-[#6b7280]">Текущий вес</p>
+                            <p className="mt-1 font-medium">
+                              {animal.current_weight != null
+                                ? `${animal.current_weight} кг`
+                                : "—"}
+                            </p>
+                          </div>
+
+                          <div className="col-span-2 rounded-xl bg-[#f8faf7] p-3">
+                            <p className="text-[#6b7280]">Привес</p>
+                            <p className="mt-1 font-medium text-[#2f6a4f]">
+                              {gain != null ? `+${gain} кг` : "—"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* DESKTOP TABLE */}
+                <div className="hidden overflow-hidden rounded-2xl border border-[#ebf0e6] md:block">
+                  <table className="min-w-full text-left">
+                    <thead className="bg-[#f8faf7] text-sm text-[#6b7280]">
+                      <tr>
+                        <th className="px-4 py-3">Код</th>
+                        <th className="px-4 py-3">Возраст</th>
+                        <th className="px-4 py-3">Стартовый вес</th>
+                        <th className="px-4 py-3">Текущий вес</th>
+                        <th className="px-4 py-3">Привес</th>
+                        <th className="px-4 py-3">Статус</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {safeAnimals.map((animal) => {
+                        const gain =
+                          animal.start_weight != null &&
+                          animal.current_weight != null
+                            ? Number(animal.current_weight) -
+                              Number(animal.start_weight)
+                            : null;
+
+                        return (
+                          <tr
+                            key={animal.id}
+                            className="border-t border-[#ebf0e6] bg-white hover:bg-[#fbfcfa]"
+                          >
+                            <td className="px-4 py-4 font-medium">
+                              {animal.animal_code}
+                            </td>
+                            <td className="px-4 py-4">{animal.age || "—"}</td>
+                            <td className="px-4 py-4">
+                              {animal.start_weight != null
+                                ? `${animal.start_weight} кг`
+                                : "—"}
+                            </td>
+                            <td className="px-4 py-4">
+                              {animal.current_weight != null
+                                ? `${animal.current_weight} кг`
+                                : "—"}
+                            </td>
+                            <td className="px-4 py-4 font-medium text-[#2f6a4f]">
+                              {gain != null ? `+${gain} кг` : "—"}
+                            </td>
+                            <td className="px-4 py-4">
+                              <StatusBadge status={animal.status || "Продан"} />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </SectionCard>
         </div>
@@ -198,14 +264,16 @@ export default async function BatchDetailsPage({ params }: Props) {
             <div className="rounded-2xl bg-[#f8faf7] p-4">
               <p className="font-medium">Связи готовы</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Теперь животных можно привязывать к конкретной партии через batch_id.
+                Теперь животных можно привязывать к конкретной партии через
+                batch_id.
               </p>
             </div>
 
             <div className="rounded-2xl bg-[#f8faf7] p-4">
               <p className="font-medium">Следующий шаг</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Потом можно подтянуть сюда расходы, взвешивания и продажи по этой партии.
+                Потом можно подтянуть сюда расходы, взвешивания и продажи по
+                этой партии.
               </p>
             </div>
           </div>
