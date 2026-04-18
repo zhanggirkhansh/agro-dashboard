@@ -7,20 +7,21 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
   Bar,
-  Cell,
 } from "recharts";
 
 type Item = {
   name: string;
-  profit: number;
+  revenue: number;
+  expenses: number;
 };
 
 type Props = {
   data: Item[];
 };
 
-export default function ProfitChart({ data }: Props) {
+export default function RevenueExpenseChart({ data }: Props) {
   return (
     <div className="h-[320px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -31,25 +32,12 @@ export default function ProfitChart({ data }: Props) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" hide />
           <YAxis />
-
           <Tooltip
-            formatter={(value) =>
-              `₸ ${Number(value).toLocaleString("ru-RU")}`
-            }
+            formatter={(value) => `₸ ${Number(value).toLocaleString("ru-RU")}`}
           />
-
-          <Bar
-            dataKey="profit"
-            name="Прибыль"
-            radius={[8, 8, 0, 0]}
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.profit >= 0 ? "#16a34a" : "#dc2626"}
-              />
-            ))}
-          </Bar>
+          <Legend />
+          <Bar dataKey="revenue" name="Доход" fill="#16a34a" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="expenses" name="Расход"  fill="#dc2626" radius={[8, 8, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

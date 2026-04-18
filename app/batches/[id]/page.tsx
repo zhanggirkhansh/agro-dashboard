@@ -84,7 +84,7 @@ export default async function BatchDetailsPage({ params }: Props) {
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="space-y-5 xl:col-span-2">
           <SectionCard title="Информация о партии" eyebrow="Основные данные">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
               <div className="rounded-2xl bg-[#f8faf7] p-4">
                 <p className="text-[#6b7280]">Название</p>
                 <p className="mt-1 text-lg font-semibold">{batch.batch_name}</p>
