@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
+import { ToastProvider } from "@/components/toast-provider";
 
 export const metadata: Metadata = {
   title: "WestKaz Agro Dashboard",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="bg-[#f5f7f2] text-[#1f2937]">
-        <AppShell>{children}</AppShell>
+        <ToastProvider>
+          <AppShell>{children}</AppShell>
+        </ToastProvider>
       </body>
     </html>
   );

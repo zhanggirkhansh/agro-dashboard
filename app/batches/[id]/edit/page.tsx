@@ -5,11 +5,13 @@ import { useRouter, useParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
-import { BATCH_STATUSES } from "@/constants/status";
+import { BATCH_STATUS, BATCH_STATUSES } from "@/constants/status";
+import { useToast } from "@/components/toast-provider";
 
 export default function EditBatchPage() {
   const router = useRouter();
   const params = useParams();
+  const { showToast } = useToast();
   const id = Number(params.id);
 
   const [form, setForm] = useState({
@@ -87,6 +89,16 @@ export default function EditBatchPage() {
       setError("Не удалось сохранить изменения.");
       setLoading(false);
       return;
+    }
+
+    if (form.status === BATCH_STATUS.READY_FOR_SALE) {
+      showToast(
+        "Партия готова к продаже",
+        `«${form.batch_name}» переведена в статус «Готовится к продаже»`,
+        "warning"
+      );
+    } else {
+      showToast("Изменения сохранены", form.batch_name, "success");
     }
 
     router.push("/batches");

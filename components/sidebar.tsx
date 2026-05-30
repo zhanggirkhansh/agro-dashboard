@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/toast-provider";
+import { LIVESTOCK_STATUS } from "@/constants/status";
 
 const menuItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -32,21 +34,26 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { showToast } = useToast();
 
   const [stats, setStats] = useState({
     animals: 0,
     batches: 0,
+    readyForSale: 0,
   });
 
   async function fetchStats() {
     const [{ data: livestock }, { data: batches }] = await Promise.all([
-      supabase.from("livestock").select("id"),
+      supabase.from("livestock").select("id, status"),
       supabase.from("batches").select("id"),
     ]);
 
     setStats({
       animals: livestock?.length || 0,
       batches: batches?.length || 0,
+      readyForSale:
+        livestock?.filter((a) => a.status === LIVESTOCK_STATUS.READY_FOR_SALE)
+          .length || 0,
     });
   }
 
@@ -57,10 +64,34 @@ export default function Sidebar() {
       .channel("sidebar-livestock")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "livestock" },
-        () => {
+        { event: "UPDATE", schema: "public", table: "livestock" },
+        (payload) => {
+          const newRecord = payload.new as { status: string; animal_code: string };
+          const oldRecord = payload.old as { status: string };
+
+          if (
+            newRecord.status === LIVESTOCK_STATUS.READY_FOR_SALE &&
+            oldRecord.status !== LIVESTOCK_STATUS.READY_FOR_SALE
+          ) {
+            showToast(
+              "Животное готово к продаже",
+              `${newRecord.animal_code || "Животное"} переведено в статус «Готовится к продаже»`,
+              "warning"
+            );
+          }
+
           fetchStats();
         }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "livestock" },
+        () => fetchStats()
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "livestock" },
+        () => fetchStats()
       )
       .subscribe();
 
@@ -69,9 +100,7 @@ export default function Sidebar() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "batches" },
-        () => {
-          fetchStats();
-        }
+        () => fetchStats()
       )
       .subscribe();
 
@@ -79,7 +108,7 @@ export default function Sidebar() {
       supabase.removeChannel(livestockChannel);
       supabase.removeChannel(batchesChannel);
     };
-  }, []);
+  }, [showToast]);
 
   const statusText =
     stats.animals > 0 ? "Откорм в активной фазе" : "Нет данных";
@@ -110,6 +139,8 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
+            const showBadge =
+              item.href === "/livestock" && stats.readyForSale > 0;
 
             return (
               <Link
@@ -122,7 +153,12 @@ export default function Sidebar() {
                 }`}
               >
                 <Icon size={18} />
-                <span>{item.label}</span>
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#d6a84f] px-1.5 text-xs font-bold text-white">
+                    {stats.readyForSale}
+                  </span>
+                )}
               </Link>
             );
           })}

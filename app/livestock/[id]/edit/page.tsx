@@ -5,7 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
-import { LIVESTOCK_STATUSES } from "@/constants/status";
+import { LIVESTOCK_STATUS, LIVESTOCK_STATUSES } from "@/constants/status";
+import { useToast } from "@/components/toast-provider";
 
 type Batch = {
   id: number;
@@ -16,6 +17,7 @@ export default function EditLivestockPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
+  const { showToast } = useToast();
 
   const [batches, setBatches] = useState<Batch[]>([]);
   const [form, setForm] = useState({
@@ -97,6 +99,16 @@ export default function EditLivestockPage() {
       setError("Не удалось сохранить изменения.");
       setLoading(false);
       return;
+    }
+
+    if (form.status === LIVESTOCK_STATUS.READY_FOR_SALE) {
+      showToast(
+        "Животное готово к продаже",
+        `${form.animal_code} переведено в статус «Готовится к продаже»`,
+        "warning"
+      );
+    } else {
+      showToast("Изменения сохранены", form.animal_code, "success");
     }
 
     router.push(`/livestock/${id}`);
