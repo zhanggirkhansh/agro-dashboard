@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import { supabase } from "@/lib/supabase";
+import { LIVESTOCK_STATUS } from "@/constants/status";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -12,17 +13,18 @@ type Props = {
 
 export default async function BatchDetailsPage({ params }: Props) {
   const { id } = await params;
+  const numericId = Number(id);
 
   const { data: batch, error: batchError } = await supabase
     .from("batches")
     .select("*")
-    .eq("id", id)
+    .eq("id", numericId)
     .single();
 
   const { data: animals, error: animalsError } = await supabase
     .from("livestock")
     .select("*")
-    .eq("batch_id", id)
+    .eq("batch_id", numericId)
     .order("created_at", { ascending: false });
 
   if (batchError || !batch) {
@@ -93,7 +95,7 @@ export default async function BatchDetailsPage({ params }: Props) {
               <div className="rounded-2xl bg-[#f8faf7] p-4">
                 <p className="text-[#6b7280]">Статус</p>
                 <div className="mt-2">
-                  <StatusBadge status={batch.status || "Продан"} />
+                  <StatusBadge status={batch.status || LIVESTOCK_STATUS.SOLD} />
                 </div>
               </div>
 
@@ -167,7 +169,7 @@ export default async function BatchDetailsPage({ params }: Props) {
                             </p>
                           </div>
 
-                          <StatusBadge status={animal.status || "Продан"} />
+                          <StatusBadge status={animal.status || LIVESTOCK_STATUS.SOLD} />
                         </div>
 
                         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -246,7 +248,7 @@ export default async function BatchDetailsPage({ params }: Props) {
                               {gain != null ? `+${gain} кг` : "—"}
                             </td>
                             <td className="px-4 py-4">
-                              <StatusBadge status={animal.status || "Продан"} />
+                              <StatusBadge status={animal.status || LIVESTOCK_STATUS.SOLD} />
                             </td>
                           </tr>
                         );

@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
-import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import ProfitChart from "@/components/profit-chart";
 import RevenueExpenseChart from "@/components/revenue-expense-chart";
+import ExportAnalyticsButton from "@/components/export-analytics-button";
 import { supabase } from "@/lib/supabase";
 
 export default async function AnalyticsPage() {
@@ -70,7 +70,13 @@ export default async function AnalyticsPage() {
 
   return (
     <section>
-      <PageHeader eyebrow="Финансы и эффективность" title="Аналитика" />
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm text-[#6b7280]">Финансы и эффективность</p>
+          <h2 className="mt-1 text-3xl font-semibold">Аналитика</h2>
+        </div>
+        <ExportAnalyticsButton analytics={analytics} />
+      </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

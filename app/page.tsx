@@ -6,6 +6,7 @@ import StatCard from "@/components/stat-card";
 import WeightGainChart from "@/components/weight-gain-chart";
 import ExpensesChart from "@/components/expenses-chart";
 import { supabase } from "@/lib/supabase";
+import { LIVESTOCK_STATUS } from "@/constants/status";
 
 export default async function Home() {
   const [
@@ -33,10 +34,35 @@ export default async function Home() {
   const safeWeighings = weighings ?? [];
   const safeFeed = feed ?? [];
 
+  // WeightGainChart: средний вес по месяцам
+  const weightByMonth = safeWeighings.reduce<Record<string, number[]>>((acc, w) => {
+    if (!w.weighing_date) return acc;
+    const d = new Date(w.weighing_date);
+    const key = d.toLocaleDateString("ru-RU", { month: "short", year: "2-digit" });
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(Number(w.weight || 0));
+    return acc;
+  }, {});
+  const weightChartData = Object.entries(weightByMonth).map(([name, vals]) => ({
+    name,
+    value: Math.round(vals.reduce((s, v) => s + v, 0) / vals.length),
+  }));
+
+  // ExpensesChart: сумма расходов по категориям
+  const expenseByCategory = safeExpenses.reduce<Record<string, number>>((acc, e) => {
+    const cat = e.category || "Прочее";
+    acc[cat] = (acc[cat] || 0) + Number(e.amount || 0);
+    return acc;
+  }, {});
+  const expensesChartData = Object.entries(expenseByCategory)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 7);
+
   const totalAnimals = safeLivestock.length;
 
   const activeBatches = safeBatches.filter(
-    (item) => item.status === "Активный" || item.status === "Набор массы"
+    (item) => item.status === LIVESTOCK_STATUS.ACTIVE || item.status === LIVESTOCK_STATUS.GAINING
   ).length;
 
   const totalExpenses = safeExpenses.reduce(
@@ -52,7 +78,7 @@ export default async function Home() {
   const totalProfit = totalRevenue - totalExpenses;
 
   const readyForSale = safeLivestock.filter(
-    (item) => item.status === "Готовится к продаже"
+    (item) => item.status === LIVESTOCK_STATUS.READY_FOR_SALE
   ).length;
 
   const recentActivities = [
@@ -155,12 +181,12 @@ export default async function Home() {
                 По текущим данным
               </span>
             </div>
-            <WeightGainChart />
+            <WeightGainChart data={weightChartData} />
           </SectionCard>
         </div>
 
         <SectionCard eyebrow="Расходы" title="Структура затрат">
-          <ExpensesChart />
+          <ExpensesChart data={expensesChartData} />
         </SectionCard>
       </div>
 

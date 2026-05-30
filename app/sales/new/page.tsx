@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
+import { LIVESTOCK_STATUS } from "@/constants/status";
 
 type Animal = {
   id: number;
@@ -34,7 +35,7 @@ export default function NewSalePage() {
       const { data, error } = await supabase
         .from("livestock")
         .select("id, animal_code, current_weight, batch_id")
-        .neq("status", "Продан");
+        .neq("status", LIVESTOCK_STATUS.SOLD);
 
       if (error) {
         console.error(error);
@@ -118,7 +119,7 @@ export default function NewSalePage() {
 
     const { error: updateError } = await supabase
       .from("livestock")
-      .update({ status: "Продан" })
+      .update({ status: LIVESTOCK_STATUS.SOLD })
       .eq("id", animal.id);
 
     if (updateError) {

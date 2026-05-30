@@ -1,6 +1,7 @@
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
+import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 export default function SettingsPage() {
   const stats = [
@@ -20,12 +21,7 @@ export default function SettingsPage() {
 
   const feedTypes = ["Ячмень", "Сено", "Соль", "Пшеница", "Комбикорм"];
 
-  const animalStatuses = [
-    "Активный",
-    "Набор массы",
-    "Готовится к продаже",
-    "Продан",
-  ];
+  const animalStatuses = LIVESTOCK_STATUSES;
 
   return (
     <section>

@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import WeightChart from "@/components/weight-chart";
 import { supabase } from "@/lib/supabase";
+import { LIVESTOCK_STATUS } from "@/constants/status";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -84,7 +85,7 @@ export default async function AnimalPage({ params }: PageProps) {
           title="Количество взвешиваний"
           value={String(chartData.length)}
         />
-        <StatCard title="Статус" value={animal.status || "Активный"} />
+        <StatCard title="Статус" value={animal.status || LIVESTOCK_STATUS.ACTIVE} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
@@ -95,7 +96,7 @@ export default async function AnimalPage({ params }: PageProps) {
                 Пока нет данных по взвешиваниям.
               </div>
             ) : (
-              <WeightChart data={chartData} />
+              <WeightChart data={chartData} startWeight={startWeight || undefined} />
             )}
           </SectionCard>
         </div>
@@ -140,7 +141,7 @@ export default async function AnimalPage({ params }: PageProps) {
 
             <div>
               <p className="text-[#6b7280]">Статус</p>
-              <p className="font-medium">{animal.status || "Активный"}</p>
+              <p className="font-medium">{animal.status || LIVESTOCK_STATUS.ACTIVE}</p>
             </div>
           </div>
         </SectionCard>

@@ -1,25 +1,28 @@
+import { LIVESTOCK_STATUS } from "@/constants/status";
+
 type StatusBadgeProps = {
   status: string;
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const styles: Record<string, string> = {
-    "Активный":
+    [LIVESTOCK_STATUS.ACTIVE]:
       "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
     "Активный откорм":
       "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
 
-    "Набор массы":
+    [LIVESTOCK_STATUS.GAINING]:
       "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
 
-    "Готовится к продаже":
+    [LIVESTOCK_STATUS.READY_FOR_SALE]:
       "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
     "Почти готова":
       "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
 
-    "Продан":
+    [LIVESTOCK_STATUS.SOLD]:
       "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
   };
+
 
   return (
     <span
