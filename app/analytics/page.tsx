@@ -55,9 +55,14 @@ export default async function AnalyticsPage() {
     };
   });
 
-  const totalRevenue = analytics.reduce((s, i) => s + i.revenue, 0);
-  const totalExpenses = analytics.reduce((s, i) => s + i.expenses, 0);
-  const totalProfit = analytics.reduce((s, i) => s + i.profit, 0);
+  // Считаем от всех записей, а не только привязанных к партиям
+  const totalRevenue = safeSales.reduce((s, i) => s + Number(i.total_amount || 0), 0);
+  const totalExpenses = safeExpenses.reduce((s, i) => s + Number(i.amount || 0), 0);
+  const totalProfit = totalRevenue - totalExpenses;
+
+  // Расходы без привязки к партии
+  const linkedExpenses = analytics.reduce((s, i) => s + i.expenses, 0);
+  const unlinkedExpenses = totalExpenses - linkedExpenses;
 
   const totalAnimals = analytics.reduce((s, i) => s + i.animals, 0);
   const totalGain = analytics.reduce((s, i) => s + i.totalGain, 0);
@@ -128,6 +133,22 @@ export default async function AnalyticsPage() {
               </div>
             ) : (
               <div className="space-y-4">
+                {unlinkedExpenses > 0 && (
+                  <div className="rounded-2xl border border-[#ebf0e6] bg-[#fffbf0] p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="font-semibold text-[#92400e]">Общие расходы (без партии)</p>
+                        <p className="mt-1 text-sm text-[#6b7280]">
+                          Расходы не привязанные ни к одной партии
+                        </p>
+                      </div>
+                      <p className="font-semibold text-[#b91c1c]">
+                        − ₸ {unlinkedExpenses.toLocaleString("ru-RU")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {analytics.map((item: any) => (
                   <div
                     key={item.id}
