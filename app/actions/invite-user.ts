@@ -19,9 +19,14 @@ export async function inviteUser(email: string, role: UserRole, name: string) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
-    redirectTo: "https://agro-dashboard-roan.vercel.app",
-    data: { name },
+  // Генерируем ссылку напрямую (без email — без лимитов)
+  const { data, error } = await adminSupabase.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: {
+      redirectTo: "https://agro-dashboard-roan.vercel.app",
+      data: { name },
+    },
   });
 
   if (error) {
@@ -40,5 +45,8 @@ export async function inviteUser(email: string, role: UserRole, name: string) {
     });
   }
 
-  return { success: `Приглашение отправлено на ${email} · Роль: ${ROLE_LABELS[role]}` };
+  return {
+    success: `Ссылка создана · Роль: ${ROLE_LABELS[role]}`,
+    link: data.properties?.action_link ?? null,
+  };
 }

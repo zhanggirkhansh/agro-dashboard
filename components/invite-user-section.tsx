@@ -13,7 +13,7 @@ export default function InviteUserSection() {
   const [name, setName] = useState("");
   const [role, setRole] = useState<UserRole>("zoologist");
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [result, setResult] = useState<{ type: "success" | "error"; text: string; link?: string } | null>(null);
 
   if (loading || myRole !== "admin") return null;
 
@@ -27,7 +27,7 @@ export default function InviteUserSection() {
     if (res.error) {
       setResult({ type: "error", text: res.error });
     } else {
-      setResult({ type: "success", text: res.success! });
+      setResult({ type: "success", text: res.success!, link: res.link ?? undefined });
       setEmail("");
       setName("");
       setRole("zoologist");
@@ -113,9 +113,32 @@ export default function InviteUserSection() {
         </div>
       </form>
 
+      {result?.link && (
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="mb-2 text-sm font-medium text-emerald-800">
+            Скопируй ссылку и отправь сотруднику в WhatsApp / Telegram / на почту:
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={result.link}
+              className="flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-xs text-[#374151] outline-none"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+            <button
+              onClick={() => navigator.clipboard.writeText(result.link!)}
+              className="shrink-0 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-medium text-white hover:opacity-90"
+            >
+              Копировать
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-emerald-700">Ссылка одноразовая — сотрудник установит пароль и сразу войдёт.</p>
+        </div>
+      )}
+
       <div className="mt-5 rounded-2xl bg-[#f8faf7] p-4 text-sm text-[#6b7280]">
         <p className="font-medium text-[#374151]">Как это работает</p>
-        <p className="mt-1">Сотрудник получит письмо со ссылкой для входа. При переходе по ссылке он установит пароль и сразу получит доступ с выбранной ролью.</p>
+        <p className="mt-1">Нажми кнопку → получишь ссылку → отправь сотруднику в мессенджер. Он перейдёт, установит пароль и сразу войдёт с нужной ролью.</p>
       </div>
     </SectionCard>
   );
