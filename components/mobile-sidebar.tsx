@@ -14,6 +14,7 @@ import {
   ShoppingCart,
   BarChart3,
   Settings,
+  Syringe,
 } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
 
@@ -29,6 +30,7 @@ const menuItems = [
   { label: "Корма", href: "/feed", icon: Wheat },
   { label: "Расходы", href: "/expenses", icon: Wallet },
   { label: "Взвешивания", href: "/weighings", icon: Scale },
+  { label: "Вакцины", href: "/vaccines", icon: Syringe },
   { label: "Продажи", href: "/sales", icon: ShoppingCart },
   { label: "Аналитика", href: "/analytics", icon: BarChart3 },
   { label: "Настройки", href: "/settings", icon: Settings },

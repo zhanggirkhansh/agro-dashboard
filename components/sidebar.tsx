@@ -14,11 +14,13 @@ import {
   ShoppingCart,
   BarChart3,
   Settings,
+  Syringe,
 } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/toast-provider";
 import { LIVESTOCK_STATUS } from "@/constants/status";
+import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 
 const menuItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -27,6 +29,7 @@ const menuItems = [
   { label: "Корма", href: "/feed", icon: Wheat },
   { label: "Расходы", href: "/expenses", icon: Wallet },
   { label: "Взвешивания", href: "/weighings", icon: Scale },
+  { label: "Вакцины", href: "/vaccines", icon: Syringe },
   { label: "Продажи", href: "/sales", icon: ShoppingCart },
   { label: "Аналитика", href: "/analytics", icon: BarChart3 },
   { label: "Настройки", href: "/settings", icon: Settings },
@@ -40,12 +43,14 @@ export default function Sidebar() {
     animals: 0,
     batches: 0,
     readyForSale: 0,
+    overdueVaccines: 0,
   });
 
   async function fetchStats() {
-    const [{ data: livestock }, { data: batches }] = await Promise.all([
+    const [{ data: livestock }, { data: batches }, { data: vaccines }] = await Promise.all([
       supabase.from("livestock").select("id, status"),
       supabase.from("batches").select("id"),
+      supabase.from("vaccines").select("id, next_vaccination_date"),
     ]);
 
     setStats({
@@ -54,6 +59,10 @@ export default function Sidebar() {
       readyForSale:
         livestock?.filter((a) => a.status === LIVESTOCK_STATUS.READY_FOR_SALE)
           .length || 0,
+      overdueVaccines:
+        vaccines?.filter(
+          (v) => getVaccineStatus(v.next_vaccination_date) === VACCINE_STATUS.OVERDUE
+        ).length || 0,
     });
   }
 
@@ -140,7 +149,16 @@ export default function Sidebar() {
             const isActive = pathname === item.href;
             const Icon = item.icon;
             const showBadge =
-              item.href === "/livestock" && stats.readyForSale > 0;
+              (item.href === "/livestock" && stats.readyForSale > 0) ||
+              (item.href === "/vaccines" && stats.overdueVaccines > 0);
+            const badgeCount =
+              item.href === "/livestock"
+                ? stats.readyForSale
+                : stats.overdueVaccines;
+            const badgeColor =
+              item.href === "/vaccines"
+                ? "bg-red-500"
+                : "bg-[#d6a84f]";
 
             return (
               <Link
@@ -155,8 +173,8 @@ export default function Sidebar() {
                 <Icon size={18} />
                 <span className="flex-1">{item.label}</span>
                 {showBadge && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#d6a84f] px-1.5 text-xs font-bold text-white">
-                    {stats.readyForSale}
+                  <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-white ${badgeColor}`}>
+                    {badgeCount}
                   </span>
                 )}
               </Link>

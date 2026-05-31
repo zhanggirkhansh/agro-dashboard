@@ -227,6 +227,63 @@ export type Database = {
           },
         ]
       }
+      vaccines: {
+        Row: {
+          animal_id: number | null
+          batch_id: number | null
+          comment: string | null
+          created_at: string | null
+          dose: string | null
+          id: number
+          next_vaccination_date: string | null
+          vaccination_date: string
+          vaccine_lot: string | null
+          vaccine_name: string
+          veterinarian: string | null
+        }
+        Insert: {
+          animal_id?: number | null
+          batch_id?: number | null
+          comment?: string | null
+          created_at?: string | null
+          dose?: string | null
+          id?: number
+          next_vaccination_date?: string | null
+          vaccination_date: string
+          vaccine_lot?: string | null
+          vaccine_name: string
+          veterinarian?: string | null
+        }
+        Update: {
+          animal_id?: number | null
+          batch_id?: number | null
+          comment?: string | null
+          created_at?: string | null
+          dose?: string | null
+          id?: number
+          next_vaccination_date?: string | null
+          vaccination_date?: string
+          vaccine_lot?: string | null
+          vaccine_name?: string
+          veterinarian?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vaccines_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vaccines_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weighings: {
         Row: {
           animal_id: number | null
