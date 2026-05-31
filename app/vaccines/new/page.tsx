@@ -72,9 +72,7 @@ export default function NewVaccinePage() {
     const animalId = form.target === "animal" && form.animal_id ? Number(form.animal_id) : null;
     const batchId = form.target === "batch" && form.batch_id ? Number(form.batch_id) : null;
 
-    const { error } = await supabase.from("vaccines").insert([{
-      animal_id: animalId,
-      batch_id: batchId,
+    const vaccineBase = {
       vaccine_name: vaccineName,
       vaccination_date: form.vaccination_date,
       next_vaccination_date: form.next_vaccination_date || null,
@@ -82,15 +80,61 @@ export default function NewVaccinePage() {
       veterinarian: form.veterinarian || null,
       vaccine_lot: form.vaccine_lot || null,
       comment: form.comment || null,
-    }]);
+    };
 
-    if (error) {
-      setError("Не удалось сохранить запись.");
-      setLoading(false);
-      return;
+    if (form.target === "batch" && batchId) {
+      // Получаем всех животных в партии
+      const { data: batchAnimals, error: animalsError } = await supabase
+        .from("livestock")
+        .select("id")
+        .eq("batch_id", batchId);
+
+      if (animalsError) {
+        setError("Не удалось получить животных партии.");
+        setLoading(false);
+        return;
+      }
+
+      // Создаём одну запись для партии + по записи для каждого животного
+      const records = [
+        { ...vaccineBase, batch_id: batchId, animal_id: null },
+        ...(batchAnimals ?? []).map((a) => ({
+          ...vaccineBase,
+          batch_id: batchId,
+          animal_id: a.id,
+        })),
+      ];
+
+      const { error } = await supabase.from("vaccines").insert(records);
+
+      if (error) {
+        setError("Не удалось сохранить записи.");
+        setLoading(false);
+        return;
+      }
+
+      showToast(
+        "Вакцинация партии записана",
+        `${vaccineName} — ${batchAnimals?.length ?? 0} животных`,
+        "success"
+      );
+    } else {
+      // Одно животное
+      const { error } = await supabase.from("vaccines").insert([{
+        ...vaccineBase,
+        animal_id: animalId,
+        batch_id: null,
+      }]);
+
+      if (error) {
+        setError("Не удалось сохранить запись.");
+        setLoading(false);
+        return;
+      }
+
+      showToast("Вакцинация записана", vaccineName, "success");
     }
 
-    showToast("Вакцинация записана", vaccineName, "success");
     router.push("/vaccines");
     router.refresh();
   }
