@@ -1,6 +1,7 @@
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
+import UserManagementSection from "@/components/user-management-section";
 import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 export default function SettingsPage() {
@@ -154,13 +155,27 @@ export default function SettingsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Следующий шаг" eyebrow="Развитие">
-            <p className="text-sm text-[#6b7280]">
-              Позже сюда можно добавить роли пользователей, авторизацию,
-              системные справочники и управление доступом.
-            </p>
+          <SectionCard title="Роли" eyebrow="Описание доступа">
+            <div className="space-y-3">
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="font-medium">Директор (admin)</p>
+                <p className="mt-1 text-sm text-[#6b7280]">Полный доступ ко всем разделам.</p>
+              </div>
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="font-medium">Зоотехник (zoologist)</p>
+                <p className="mt-1 text-sm text-[#6b7280]">Поголовье, партии, взвешивания, вакцины.</p>
+              </div>
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="font-medium">Бухгалтер (accountant)</p>
+                <p className="mt-1 text-sm text-[#6b7280]">Корма, расходы, продажи, аналитика.</p>
+              </div>
+            </div>
           </SectionCard>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <UserManagementSection />
       </div>
     </section>
   );

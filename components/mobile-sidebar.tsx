@@ -3,41 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  X,
-  LayoutDashboard,
-  Beef,
-  Boxes,
-  Wheat,
-  Wallet,
-  Scale,
-  ShoppingCart,
-  BarChart3,
-  Settings,
-  Syringe,
-} from "lucide-react";
+import { X } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
+import { useUserRole } from "@/contexts/user-role-context";
+import { getMenuForRole, ROLE_LABELS } from "@/lib/roles";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
 
-const menuItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Поголовье", href: "/livestock", icon: Beef },
-  { label: "Партии", href: "/batches", icon: Boxes },
-  { label: "Корма", href: "/feed", icon: Wheat },
-  { label: "Расходы", href: "/expenses", icon: Wallet },
-  { label: "Взвешивания", href: "/weighings", icon: Scale },
-  { label: "Вакцины", href: "/vaccines", icon: Syringe },
-  { label: "Продажи", href: "/sales", icon: ShoppingCart },
-  { label: "Аналитика", href: "/analytics", icon: BarChart3 },
-  { label: "Настройки", href: "/settings", icon: Settings },
-];
-
 export default function MobileSidebar({ open, onClose }: Props) {
   const pathname = usePathname();
+  const { role, email } = useUserRole();
+  const menuItems = getMenuForRole(role);
 
   if (!open) return null;
 
@@ -113,6 +92,15 @@ export default function MobileSidebar({ open, onClose }: Props) {
                 </p>
                 <p className="mt-1 text-sm text-white/70">WestKaz Agro</p>
               </div>
+
+              {(email || role) && (
+                <div className="rounded-2xl bg-white/10 p-3">
+                  <p className="truncate text-sm font-medium">{email}</p>
+                  {role && (
+                    <p className="mt-0.5 text-xs text-white/60">{ROLE_LABELS[role]}</p>
+                  )}
+                </div>
+              )}
 
               <LogoutButton />
             </div>

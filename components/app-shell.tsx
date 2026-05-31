@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import Sidebar from "@/components/sidebar";
 import MobileSidebar from "@/components/mobile-sidebar";
+import { UserRoleProvider } from "@/contexts/user-role-context";
 
 type Props = {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export default function AppShell({ children }: Props) {
   }
 
   return (
+    <UserRoleProvider>
     <div className="min-h-screen bg-[#f5f7f2]">
       <MobileSidebar
         open={mobileMenuOpen}
@@ -53,5 +55,6 @@ export default function AppShell({ children }: Props) {
         </div>
       </div>
     </div>
+    </UserRoleProvider>
   );
 }

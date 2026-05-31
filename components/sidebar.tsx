@@ -4,40 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  LayoutDashboard,
-  Beef,
-  Boxes,
-  Wheat,
-  Wallet,
-  Scale,
-  ShoppingCart,
-  BarChart3,
-  Settings,
-  Syringe,
-} from "lucide-react";
 import LogoutButton from "@/components/logout-button";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/toast-provider";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
-
-const menuItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Поголовье", href: "/livestock", icon: Beef },
-  { label: "Партии", href: "/batches", icon: Boxes },
-  { label: "Корма", href: "/feed", icon: Wheat },
-  { label: "Расходы", href: "/expenses", icon: Wallet },
-  { label: "Взвешивания", href: "/weighings", icon: Scale },
-  { label: "Вакцины", href: "/vaccines", icon: Syringe },
-  { label: "Продажи", href: "/sales", icon: ShoppingCart },
-  { label: "Аналитика", href: "/analytics", icon: BarChart3 },
-  { label: "Настройки", href: "/settings", icon: Settings },
-];
+import { useUserRole } from "@/contexts/user-role-context";
+import { getMenuForRole, ROLE_LABELS } from "@/lib/roles";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { showToast } = useToast();
+  const { role, email } = useUserRole();
+
+  const menuItems = getMenuForRole(role);
 
   const [stats, setStats] = useState({
     animals: 0,
@@ -92,25 +72,13 @@ export default function Sidebar() {
           fetchStats();
         }
       )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "livestock" },
-        () => fetchStats()
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "livestock" },
-        () => fetchStats()
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "livestock" }, () => fetchStats())
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "livestock" }, () => fetchStats())
       .subscribe();
 
     const batchesChannel = supabase
       .channel("sidebar-batches")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "batches" },
-        () => fetchStats()
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "batches" }, () => fetchStats())
       .subscribe();
 
     return () => {
@@ -119,8 +87,7 @@ export default function Sidebar() {
     };
   }, [showToast]);
 
-  const statusText =
-    stats.animals > 0 ? "Откорм в активной фазе" : "Нет данных";
+  const statusText = stats.animals > 0 ? "Откорм в активной фазе" : "Нет данных";
 
   return (
     <aside className="flex w-72 flex-col justify-between bg-[#1f4d3a] p-6 text-white">
@@ -152,13 +119,9 @@ export default function Sidebar() {
               (item.href === "/livestock" && stats.readyForSale > 0) ||
               (item.href === "/vaccines" && stats.overdueVaccines > 0);
             const badgeCount =
-              item.href === "/livestock"
-                ? stats.readyForSale
-                : stats.overdueVaccines;
+              item.href === "/livestock" ? stats.readyForSale : stats.overdueVaccines;
             const badgeColor =
-              item.href === "/vaccines"
-                ? "bg-red-500"
-                : "bg-[#d6a84f]";
+              item.href === "/vaccines" ? "bg-red-500" : "bg-[#d6a84f]";
 
             return (
               <Link
@@ -191,6 +154,15 @@ export default function Sidebar() {
             {stats.batches} партий · {stats.animals} голов
           </p>
         </div>
+
+        {(email || role) && (
+          <div className="rounded-2xl bg-white/10 p-3">
+            <p className="truncate text-sm font-medium">{email}</p>
+            {role && (
+              <p className="mt-0.5 text-xs text-white/60">{ROLE_LABELS[role]}</p>
+            )}
+          </div>
+        )}
 
         <LogoutButton />
       </div>

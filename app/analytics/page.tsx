@@ -5,6 +5,7 @@ import StatCard from "@/components/stat-card";
 import ProfitChart from "@/components/profit-chart";
 import RevenueExpenseChart from "@/components/revenue-expense-chart";
 import ExportAnalyticsButton from "@/components/export-analytics-button";
+import ExportFinancialPDFButton from "@/components/export-financial-pdf-button";
 import { supabase } from "@/lib/supabase";
 
 export default async function AnalyticsPage() {
@@ -80,7 +81,15 @@ export default async function AnalyticsPage() {
           <p className="text-sm text-[#6b7280]">Финансы и эффективность</p>
           <h2 className="mt-1 text-3xl font-semibold">Аналитика</h2>
         </div>
-        <ExportAnalyticsButton analytics={analytics} />
+        <div className="flex gap-3">
+          <ExportFinancialPDFButton
+            analytics={analytics}
+            totalRevenue={totalRevenue}
+            totalExpenses={totalExpenses}
+            totalProfit={totalProfit}
+          />
+          <ExportAnalyticsButton analytics={analytics} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">

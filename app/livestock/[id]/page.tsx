@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import PageHeader from "@/components/page-header";
+import ExportAnimalPDFButton from "@/components/export-animal-pdf-button";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import WeightChart from "@/components/weight-chart";
@@ -30,6 +31,7 @@ export default async function AnimalPage({ params }: PageProps) {
   const [
     { data: animal, error: animalError },
     { data: weighings, error: weighingsError },
+    { data: history },
   ] = await Promise.all([
     supabase
       .from("livestock")
@@ -42,6 +44,13 @@ export default async function AnimalPage({ params }: PageProps) {
       .select("id, weight, weighing_date, comment")
       .eq("animal_id", animalId)
       .order("weighing_date", { ascending: true }),
+
+    supabase
+      .from("livestock_history")
+      .select("id, changed_at, changed_by, old_status, new_status, old_weight, new_weight, old_batch, new_batch")
+      .eq("animal_id", animalId)
+      .order("changed_at", { ascending: false })
+      .limit(20),
   ]);
 
   if (animalError || !animal) {
@@ -141,7 +150,8 @@ export default async function AnimalPage({ params }: PageProps) {
             {animal.animal_code || `ID-${animal.id}`}
           </h2>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <ExportAnimalPDFButton animalId={animal.id} animalCode={animal.animal_code} />
           <Link
             href={`/weighings/new?animal_id=${animal.id}`}
             className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
@@ -264,6 +274,51 @@ export default async function AnimalPage({ params }: PageProps) {
           )}
         </SectionCard>
       </div>
+
+      {/* История изменений */}
+      {history && history.length > 0 && (
+        <div className="mt-6">
+          <SectionCard title="История изменений" eyebrow="Аудит">
+            <div className="space-y-3">
+              {history.map((h) => {
+                const changes: string[] = [];
+                if (h.old_status !== h.new_status) {
+                  changes.push(`Статус: «${h.old_status ?? "—"}» → «${h.new_status ?? "—"}»`);
+                }
+                if (h.old_weight !== h.new_weight) {
+                  changes.push(`Вес: ${h.old_weight ?? "—"} → ${h.new_weight ?? "—"} кг`);
+                }
+                if (h.old_batch !== h.new_batch) {
+                  changes.push(`Партия: «${h.old_batch ?? "—"}» → «${h.new_batch ?? "—"}»`);
+                }
+
+                return (
+                  <div
+                    key={h.id}
+                    className="rounded-2xl border border-[#ebf0e6] bg-white p-4"
+                  >
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-sm">
+                        {changes.map((c, i) => (
+                          <p key={i} className="font-medium">{c}</p>
+                        ))}
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-xs text-[#6b7280]">
+                          {new Date(h.changed_at).toLocaleString("ru-RU")}
+                        </p>
+                        {h.changed_by && (
+                          <p className="text-xs text-[#6b7280]">{h.changed_by}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
+        </div>
+      )}
 
       {/* Вакцинации */}
       <div className="mt-6">

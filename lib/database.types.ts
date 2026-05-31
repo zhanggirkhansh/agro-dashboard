@@ -319,6 +319,74 @@ export type Database = {
           },
         ]
       }
+      livestock_history: {
+        Row: {
+          id: number
+          animal_id: number
+          changed_at: string
+          changed_by: string | null
+          old_status: string | null
+          new_status: string | null
+          old_weight: number | null
+          new_weight: number | null
+          old_batch: string | null
+          new_batch: string | null
+        }
+        Insert: {
+          id?: number
+          animal_id: number
+          changed_at?: string
+          changed_by?: string | null
+          old_status?: string | null
+          new_status?: string | null
+          old_weight?: number | null
+          new_weight?: number | null
+          old_batch?: string | null
+          new_batch?: string | null
+        }
+        Update: {
+          id?: number
+          animal_id?: number
+          changed_at?: string
+          changed_by?: string | null
+          old_status?: string | null
+          new_status?: string | null
+          old_weight?: number | null
+          new_weight?: number | null
+          old_batch?: string | null
+          new_batch?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livestock_history_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          email: string | null
+          name: string | null
+          role: string
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          name?: string | null
+          role?: string
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          name?: string | null
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

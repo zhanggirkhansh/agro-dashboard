@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportVaccinesButton from "@/components/export-vaccines-button";
+import ExportVaccinationPDFButton from "@/components/export-vaccination-pdf-button";
 import { supabase } from "@/lib/supabase";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 
@@ -78,6 +79,7 @@ export default async function VaccinesPage({ searchParams }: Props) {
           <h2 className="mt-1 text-3xl font-semibold">Вакцинации</h2>
         </div>
         <div className="flex gap-3">
+          <ExportVaccinationPDFButton />
           <ExportVaccinesButton />
           <Link
             href="/vaccines/new"

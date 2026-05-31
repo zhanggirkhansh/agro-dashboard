@@ -82,6 +82,13 @@ export default function EditLivestockPage() {
 
     const selectedBatch = batches.find((b) => String(b.id) === form.batch_id);
 
+    // Читаем текущие данные перед обновлением для истории изменений
+    const { data: current } = await supabase
+      .from("livestock")
+      .select("status, current_weight, batch")
+      .eq("id", id)
+      .single();
+
     const { error } = await supabase
       .from("livestock")
       .update({
@@ -99,6 +106,32 @@ export default function EditLivestockPage() {
       setError("Не удалось сохранить изменения.");
       setLoading(false);
       return;
+    }
+
+    // Пишем в историю если что-то изменилось
+    if (current) {
+      const newWeight = form.current_weight ? Number(form.current_weight) : null;
+      const newBatch = selectedBatch?.batch_name ?? null;
+      const oldWeight = current.current_weight != null ? Number(current.current_weight) : null;
+
+      const hasChange =
+        (form.status || null) !== (current.status ?? null) ||
+        newWeight !== oldWeight ||
+        newBatch !== (current.batch ?? null);
+
+      if (hasChange) {
+        const { data: { user } } = await supabase.auth.getUser();
+        await supabase.from("livestock_history").insert({
+          animal_id: id,
+          changed_by: user?.email ?? null,
+          old_status: current.status ?? null,
+          new_status: form.status || null,
+          old_weight: oldWeight,
+          new_weight: newWeight,
+          old_batch: current.batch ?? null,
+          new_batch: newBatch,
+        });
+      }
     }
 
     if (form.status === LIVESTOCK_STATUS.READY_FOR_SALE) {
