@@ -107,7 +107,7 @@ export default function LivestockTable({ animals }: Props) {
       </div>
 
       {/* DESKTOP TABLE */}
-      <div className="hidden overflow-hidden rounded-2xl border border-[#ebf0e6] md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-[#ebf0e6] md:block">
         <table className="min-w-full text-left">
           <thead className="bg-[#f8faf7] text-sm text-[#6b7280]">
             <tr>
