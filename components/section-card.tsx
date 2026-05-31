@@ -1,7 +1,10 @@
+import Link from "next/link";
+
 type SectionCardProps = {
   title: string;
   eyebrow?: string;
   actionLabel?: string;
+  actionHref?: string;
   children: React.ReactNode;
 };
 
@@ -9,6 +12,7 @@ export default function SectionCard({
   title,
   eyebrow,
   actionLabel,
+  actionHref,
   children,
 }: SectionCardProps) {
   return (
@@ -23,7 +27,14 @@ export default function SectionCard({
           </h3>
         </div>
 
-        {actionLabel ? (
+        {actionLabel && actionHref ? (
+          <Link
+            href={actionHref}
+            className="inline-flex items-center justify-center rounded-2xl bg-[#f3f6ef] px-4 py-2 text-sm font-medium text-[#1f4d3a] transition-all duration-200 hover:bg-[#e9f0e4] active:scale-[0.98]"
+          >
+            {actionLabel}
+          </Link>
+        ) : actionLabel ? (
           <button className="inline-flex items-center justify-center rounded-2xl bg-[#f3f6ef] px-4 py-2 text-sm font-medium text-[#1f4d3a] transition-all duration-200 hover:bg-[#e9f0e4] active:scale-[0.98]">
             {actionLabel}
           </button>

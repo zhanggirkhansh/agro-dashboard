@@ -17,6 +17,7 @@ export default function NewVaccinePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const presetAnimalId = searchParams.get("animal_id") ?? "";
+  const presetBatchId = searchParams.get("batch_id") ?? "";
   const { showToast } = useToast();
 
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -25,9 +26,9 @@ export default function NewVaccinePage() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    target: "animal" as "animal" | "batch",
+    target: (presetBatchId ? "batch" : "animal") as "animal" | "batch",
     animal_id: presetAnimalId,
-    batch_id: "",
+    batch_id: presetBatchId,
     vaccine_name: "",
     custom_vaccine: "",
     vaccination_date: today,

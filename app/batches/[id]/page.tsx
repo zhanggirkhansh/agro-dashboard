@@ -6,6 +6,7 @@ import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import { supabase } from "@/lib/supabase";
 import { LIVESTOCK_STATUS } from "@/constants/status";
+import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -15,17 +16,19 @@ export default async function BatchDetailsPage({ params }: Props) {
   const { id } = await params;
   const numericId = Number(id);
 
-  const { data: batch, error: batchError } = await supabase
-    .from("batches")
-    .select("*")
-    .eq("id", numericId)
-    .single();
-
-  const { data: animals, error: animalsError } = await supabase
-    .from("livestock")
-    .select("*")
-    .eq("batch_id", numericId)
-    .order("created_at", { ascending: false });
+  const [
+    { data: batch, error: batchError },
+    { data: animals, error: animalsError },
+    { data: batchVaccines },
+  ] = await Promise.all([
+    supabase.from("batches").select("*").eq("id", numericId).single(),
+    supabase.from("livestock").select("*").eq("batch_id", numericId).order("created_at", { ascending: false }),
+    supabase
+      .from("vaccines")
+      .select("id, vaccine_name, vaccination_date, next_vaccination_date, dose, veterinarian, vaccine_lot")
+      .eq("batch_id", numericId)
+      .order("vaccination_date", { ascending: false }),
+  ]);
 
   if (batchError || !batch) {
     return (
@@ -261,24 +264,81 @@ export default async function BatchDetailsPage({ params }: Props) {
           </SectionCard>
         </div>
 
-        <SectionCard title="Подсказки" eyebrow="Что дальше">
-          <div className="space-y-4">
-            <div className="rounded-2xl bg-[#f8faf7] p-4">
-              <p className="font-medium">Связи готовы</p>
-              <p className="mt-1 text-sm text-[#6b7280]">
-                Теперь животных можно привязывать к конкретной партии через
-                batch_id.
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-[#f8faf7] p-4">
-              <p className="font-medium">Следующий шаг</p>
-              <p className="mt-1 text-sm text-[#6b7280]">
-                Потом можно подтянуть сюда расходы, взвешивания и продажи по
-                этой партии.
-              </p>
-            </div>
+        <SectionCard title="Вакцинации партии" eyebrow="Ветеринарный учёт">
+          <div className="mb-4 flex justify-end">
+            <Link
+              href={`/vaccines/new?batch_id=${numericId}`}
+              className="rounded-2xl bg-[#1f4d3a] px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+            >
+              + Вакцинировать партию
+            </Link>
           </div>
+
+          {!batchVaccines || batchVaccines.length === 0 ? (
+            <div className="rounded-2xl bg-[#f8faf7] px-4 py-6 text-sm text-[#6b7280]">
+              Нет записей о вакцинации этой партии.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {batchVaccines.map((v) => {
+                const vStatus = getVaccineStatus(v.next_vaccination_date);
+                const statusColor =
+                  vStatus === VACCINE_STATUS.OVERDUE
+                    ? "bg-red-50 text-red-700 ring-1 ring-red-200"
+                    : vStatus === VACCINE_STATUS.UPCOMING
+                      ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                      : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
+
+                return (
+                  <div key={v.id} className="rounded-2xl border border-[#ebf0e6] bg-white p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">{v.vaccine_name}</p>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+                          {vStatus}
+                        </span>
+                      </div>
+                      <Link
+                        href={`/vaccines/${v.id}/edit`}
+                        className="shrink-0 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                      >
+                        Изменить
+                      </Link>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                      <div className="rounded-xl bg-[#f8faf7] p-3">
+                        <p className="text-[#6b7280]">Дата</p>
+                        <p className="mt-1 font-medium">
+                          {new Date(v.vaccination_date).toLocaleDateString("ru-RU")}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-[#f8faf7] p-3">
+                        <p className="text-[#6b7280]">Следующая</p>
+                        <p className={`mt-1 font-medium ${vStatus === VACCINE_STATUS.OVERDUE ? "text-[#b91c1c]" : ""}`}>
+                          {v.next_vaccination_date
+                            ? new Date(v.next_vaccination_date).toLocaleDateString("ru-RU")
+                            : "—"}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-[#f8faf7] p-3">
+                        <p className="text-[#6b7280]">Доза</p>
+                        <p className="mt-1 font-medium">{v.dose || "—"}</p>
+                      </div>
+                      <div className="rounded-xl bg-[#f8faf7] p-3">
+                        <p className="text-[#6b7280]">Ветеринар</p>
+                        <p className="mt-1 font-medium">{v.veterinarian || "—"}</p>
+                      </div>
+                    </div>
+
+                    {v.vaccine_lot && (
+                      <p className="mt-2 text-xs text-[#6b7280]">Серия: {v.vaccine_lot}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </SectionCard>
       </div>
     </section>
