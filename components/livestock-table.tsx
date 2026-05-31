@@ -118,7 +118,7 @@ export default function LivestockTable({ animals }: Props) {
               <th className="px-4 py-3">Текущий вес</th>
               <th className="px-4 py-3">Привес</th>
               <th className="px-4 py-3">Статус</th>
-              <th className="px-4 py-3"></th>
+              <th className="w-px px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
@@ -156,7 +156,7 @@ export default function LivestockTable({ animals }: Props) {
                     <StatusBadge status={animal.status || LIVESTOCK_STATUS.SOLD} />
                   </td>
                   <td
-                    className="px-4 py-4"
+                    className="w-px whitespace-nowrap px-4 py-4"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Link
