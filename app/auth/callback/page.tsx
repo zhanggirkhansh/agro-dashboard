@@ -6,35 +6,43 @@ import { supabase } from "@/lib/supabase";
 import SectionCard from "@/components/section-card";
 import PageHeader from "@/components/page-header";
 
+type State = "loading" | "set-password" | "error";
+
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [type, setType] = useState<string | null>(null);
+  const [state, setState] = useState<State>("loading");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Supabase кладёт токены в хэш — ждём пока клиент их подхватит
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_IN" || event === "PASSWORD_RECOVERY") {
-          const hash = window.location.hash;
-          const params = new URLSearchParams(hash.replace("#", ""));
-          const t = params.get("type");
-          setType(t);
-          setReady(true);
+    async function init() {
+      // Даём Supabase время подхватить токены из хэша
+      await new Promise((r) => setTimeout(r, 800));
 
-          // Если не invite и не recovery — просто редирект на главную
-          if (t !== "invite" && t !== "recovery") {
-            router.replace("/");
-          }
-        }
+      // Пробуем получить сессию
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        setState("error");
+        return;
       }
-    );
 
-    return () => subscription.unsubscribe();
+      // Смотрим тип из хэша
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace("#", ""));
+      const type = params.get("type");
+
+      if (type === "invite" || type === "recovery") {
+        setState("set-password");
+      } else {
+        // Обычный вход — просто на главную
+        router.replace("/");
+      }
+    }
+
+    init();
   }, [router]);
 
   async function handleSetPassword(e: React.FormEvent) {
@@ -48,25 +56,43 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     setError("");
 
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       setError(error.message);
-      setLoading(false);
+      setSaving(false);
       return;
     }
 
     router.replace("/");
   }
 
-  if (!ready) {
+  if (state === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f6f8f4]">
-        <div className="rounded-2xl bg-white px-6 py-4 text-sm text-[#6b7280] shadow-sm ring-1 ring-[#e6ebdf]">
-          Проверка ссылки...
+        <div className="rounded-2xl bg-white px-8 py-6 text-center shadow-sm ring-1 ring-[#e6ebdf]">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#1f4d3a] border-t-transparent" />
+          <p className="text-sm text-[#6b7280]">Активация ссылки...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "error") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f6f8f4] px-6">
+        <div className="w-full max-w-md rounded-2xl bg-[#fef2f2] px-6 py-8 text-center ring-1 ring-[#fecaca]">
+          <p className="text-lg font-semibold text-[#b91c1c]">Ссылка недействительна</p>
+          <p className="mt-2 text-sm text-[#6b7280]">Запросите новую ссылку у администратора.</p>
+          <a
+            href="/login"
+            className="mt-4 inline-block rounded-2xl bg-[#1f4d3a] px-5 py-3 text-sm font-medium text-white hover:opacity-90"
+          >
+            На страницу входа
+          </a>
         </div>
       </div>
     );
@@ -75,9 +101,9 @@ export default function AuthCallbackPage() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f6f8f4] px-6">
       <div className="w-full max-w-xl">
-        <PageHeader eyebrow="Добро пожаловать" title="Установите пароль" />
+        <PageHeader eyebrow="WestKaz Agro" title="Установите пароль" />
 
-        <SectionCard title="Придумайте пароль" eyebrow="WestKaz Agro">
+        <SectionCard title="Придумайте пароль для входа" eyebrow="Добро пожаловать">
           <form onSubmit={handleSetPassword} className="space-y-5">
             <div>
               <label className="mb-2 block text-sm font-medium">Новый пароль</label>
@@ -106,10 +132,10 @@ export default function AuthCallbackPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="w-full rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Сохранение..." : "Войти в систему"}
+              {saving ? "Сохранение..." : "Войти в систему"}
             </button>
 
             {error && (
