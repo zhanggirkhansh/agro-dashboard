@@ -18,26 +18,29 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function init() {
-      // Даём Supabase время подхватить токены из хэша
-      await new Promise((r) => setTimeout(r, 800));
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace("#", ""));
 
-      // Пробуем получить сессию
-      const { data: { session } } = await supabase.auth.getSession();
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      const type = params.get("type");
 
-      if (!session) {
+      if (!access_token || !refresh_token) {
         setState("error");
         return;
       }
 
-      // Смотрим тип из хэша
-      const hash = window.location.hash;
-      const params = new URLSearchParams(hash.replace("#", ""));
-      const type = params.get("type");
+      // Устанавливаем сессию вручную из хэша
+      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+
+      if (error) {
+        setState("error");
+        return;
+      }
 
       if (type === "invite" || type === "recovery") {
         setState("set-password");
       } else {
-        // Обычный вход — просто на главную
         router.replace("/");
       }
     }
