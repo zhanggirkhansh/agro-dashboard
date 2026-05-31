@@ -2,6 +2,7 @@ import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import UserManagementSection from "@/components/user-management-section";
+import InviteUserSection from "@/components/invite-user-section";
 import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 export default function SettingsPage() {
@@ -174,7 +175,8 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <InviteUserSection />
         <UserManagementSection />
       </div>
     </section>
