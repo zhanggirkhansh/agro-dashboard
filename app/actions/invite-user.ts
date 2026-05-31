@@ -3,19 +3,24 @@
 import { createClient } from "@supabase/supabase-js";
 import { ROLE_LABELS, type UserRole } from "@/lib/roles";
 
-const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
-
 export async function inviteUser(email: string, role: UserRole, name: string) {
   if (!email || !role) {
     return { error: "Email и роль обязательны" };
   }
 
-  // Отправляем приглашение через Supabase Auth
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    return { error: "SUPABASE_SERVICE_ROLE_KEY не задан на сервере" };
+  }
+
+  const adminSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceKey,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
   const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
+    redirectTo: "https://agro-dashboard-roan.vercel.app",
     data: { name },
   });
 
@@ -26,7 +31,6 @@ export async function inviteUser(email: string, role: UserRole, name: string) {
     return { error: error.message };
   }
 
-  // Создаём профиль с нужной ролью
   if (data.user) {
     await adminSupabase.from("user_profiles").upsert({
       id: data.user.id,
