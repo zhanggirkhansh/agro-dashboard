@@ -33,7 +33,7 @@ export default async function AnimalPage({ params }: PageProps) {
   ] = await Promise.all([
     supabase
       .from("livestock")
-      .select("id, animal_code, age, status, batch, batch_id, start_weight, current_weight")
+      .select("id, animal_code, age, status, batch, batch_id, start_weight, current_weight, created_at")
       .eq("id", animalId)
       .single(),
 
@@ -103,9 +103,10 @@ export default async function AnimalPage({ params }: PageProps) {
       ? currentWeight - startWeight
       : 0;
 
-  // Суточный привес: берём первое и последнее взвешивание
+  // Суточный привес
   let dailyGainG: number | null = null;
   if (safeWeighings.length >= 2) {
+    // Два и более взвешивания: первое vs последнее
     const first = safeWeighings[0];
     const last = safeWeighings[safeWeighings.length - 1];
     const days = Math.max(
@@ -116,6 +117,19 @@ export default async function AnimalPage({ params }: PageProps) {
       )
     );
     dailyGainG = Math.round(((Number(last.weight) - Number(first.weight)) / days) * 1000);
+  } else if (safeWeighings.length === 1 && animal.start_weight != null && animal.created_at) {
+    // Одно взвешивание: start_weight + created_at как базовая точка
+    const weighing = safeWeighings[0];
+    const days = Math.max(
+      1,
+      Math.round(
+        (new Date(weighing.weighing_date).getTime() - new Date(animal.created_at).getTime()) /
+          86400000
+      )
+    );
+    dailyGainG = Math.round(
+      ((Number(weighing.weight) - Number(animal.start_weight)) / days) * 1000
+    );
   }
 
   return (
@@ -149,7 +163,7 @@ export default async function AnimalPage({ params }: PageProps) {
         <StatCard
           title="Суточный привес"
           value={dailyGainG !== null ? `${dailyGainG > 0 ? "+" : ""}${dailyGainG} г/день` : "—"}
-          change={safeWeighings.length < 2 ? "Нужно ≥ 2 взвешиваний" : undefined}
+          change={dailyGainG === null ? "Нужно взвешивание" : undefined}
         />
         <StatCard title="Статус" value={animal.status || LIVESTOCK_STATUS.ACTIVE} />
       </div>

@@ -17,7 +17,7 @@ export default async function Home() {
     { data: weighings },
     { data: feed },
   ] = await Promise.all([
-    supabase.from("livestock").select("id, status"),
+    supabase.from("livestock").select("id, status, start_weight, created_at"),
     supabase.from("batches").select("id, status, batch_name"),
     supabase
       .from("expenses")
@@ -67,17 +67,33 @@ export default async function Home() {
     return acc;
   }, {});
 
-  const dailyGainsG = Object.values(byAnimal)
-    .filter((ws) => ws.length >= 2)
-    .map((ws) => {
-      const first = ws[0];
-      const last = ws[ws.length - 1];
-      const days = Math.max(
-        1,
-        Math.round((new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) / 86400000)
-      );
-      return ((Number(last.weight) - Number(first.weight)) / days) * 1000;
-    });
+  const livestockMap = Object.fromEntries(
+    safeLivestock.map((a) => [a.id, a])
+  );
+
+  const dailyGainsG = Object.entries(byAnimal)
+    .map(([animalIdStr, ws]) => {
+      if (ws.length >= 2) {
+        const first = ws[0];
+        const last = ws[ws.length - 1];
+        const days = Math.max(
+          1,
+          Math.round((new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) / 86400000)
+        );
+        return ((Number(last.weight) - Number(first.weight)) / days) * 1000;
+      }
+      // Одно взвешивание — используем start_weight + created_at
+      const animal = livestockMap[Number(animalIdStr)];
+      if (ws.length === 1 && animal?.start_weight != null && animal?.created_at) {
+        const days = Math.max(
+          1,
+          Math.round((new Date(ws[0].weighing_date).getTime() - new Date(animal.created_at).getTime()) / 86400000)
+        );
+        return ((Number(ws[0].weight) - Number(animal.start_weight)) / days) * 1000;
+      }
+      return null;
+    })
+    .filter((v): v is number => v !== null);
 
   const avgDailyGainG =
     dailyGainsG.length > 0
