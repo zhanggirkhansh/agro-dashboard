@@ -30,11 +30,10 @@ export default async function AnimalPage({ params }: PageProps) {
   const [
     { data: animal, error: animalError },
     { data: weighings, error: weighingsError },
-    { data: animalVaccines },
   ] = await Promise.all([
     supabase
       .from("livestock")
-      .select("id, animal_code, age, status, batch, start_weight, current_weight")
+      .select("id, animal_code, age, status, batch, batch_id, start_weight, current_weight")
       .eq("id", animalId)
       .single(),
 
@@ -43,12 +42,6 @@ export default async function AnimalPage({ params }: PageProps) {
       .select("id, weight, weighing_date, comment")
       .eq("animal_id", animalId)
       .order("weighing_date", { ascending: true }),
-
-    supabase
-      .from("vaccines")
-      .select("id, vaccine_name, vaccination_date, next_vaccination_date, dose, veterinarian, vaccine_lot")
-      .eq("animal_id", animalId)
-      .order("vaccination_date", { ascending: false }),
   ]);
 
   if (animalError || !animal) {
@@ -60,6 +53,37 @@ export default async function AnimalPage({ params }: PageProps) {
       </section>
     );
   }
+
+  // Загружаем вакцины: индивидуальные + партийные (animal_id = null)
+  const vaccineQueries = [
+    supabase
+      .from("vaccines")
+      .select("id, vaccine_name, vaccination_date, next_vaccination_date, dose, veterinarian, vaccine_lot")
+      .eq("animal_id", animalId)
+      .order("vaccination_date", { ascending: false }),
+  ];
+
+  if (animal.batch_id) {
+    vaccineQueries.push(
+      supabase
+        .from("vaccines")
+        .select("id, vaccine_name, vaccination_date, next_vaccination_date, dose, veterinarian, vaccine_lot")
+        .eq("batch_id", animal.batch_id)
+        .is("animal_id", null)
+        .order("vaccination_date", { ascending: false })
+    );
+  }
+
+  const vaccineResults = await Promise.all(vaccineQueries);
+  const seenIds = new Set<number>();
+  const animalVaccines = vaccineResults
+    .flatMap((r) => r.data ?? [])
+    .filter((v) => {
+      if (seenIds.has(v.id)) return false;
+      seenIds.add(v.id);
+      return true;
+    })
+    .sort((a, b) => b.vaccination_date.localeCompare(a.vaccination_date));
 
   const chartData =
     weighings?.map((w) => ({
