@@ -155,6 +155,15 @@ export default async function ExpensesPage({ searchParams }: Props) {
                             </p>
                           </div>
                         </div>
+
+                        <div className="mt-3 flex justify-end">
+                          <Link
+                            href={`/expenses/${item.id}/edit`}
+                            className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                          >
+                            Изменить
+                          </Link>
+                        </div>
                       </div>
                     );
                   })}

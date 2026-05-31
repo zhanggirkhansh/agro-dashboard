@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
@@ -15,13 +15,15 @@ type Animal = {
 
 export default function NewWeighingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const presetAnimalId = searchParams.get("animal_id") ?? "";
 
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loadingAnimals, setLoadingAnimals] = useState(true);
 
   const [form, setForm] = useState({
-    animal_id: "",
-    weighing_date: "",
+    animal_id: presetAnimalId,
+    weighing_date: new Date().toISOString().split("T")[0],
     weight: "",
     comment: "",
   });

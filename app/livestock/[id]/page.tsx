@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -73,10 +74,28 @@ export default async function AnimalPage({ params }: PageProps) {
 
   return (
     <section>
-      <PageHeader
-        eyebrow="Карточка животного"
-        title={`Животное ${animal.animal_code || animal.id}`}
-      />
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm text-[#6b7280]">Карточка животного</p>
+          <h2 className="mt-1 text-3xl font-semibold">
+            {animal.animal_code || `ID-${animal.id}`}
+          </h2>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            href={`/weighings/new?animal_id=${animal.id}`}
+            className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
+          >
+            + Взвесить
+          </Link>
+          <Link
+            href={`/livestock/${animal.id}/edit`}
+            className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+          >
+            Изменить
+          </Link>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Текущий вес" value={`${currentWeight} кг`} />
