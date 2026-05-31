@@ -85,11 +85,12 @@ export default async function AnimalPage({ params }: PageProps) {
     })
     .sort((a, b) => b.vaccination_date.localeCompare(a.vaccination_date));
 
-  const chartData =
-    weighings?.map((w) => ({
-      date: new Date(w.weighing_date).toLocaleDateString("ru-RU"),
-      weight: Number(w.weight),
-    })) ?? [];
+  const safeWeighings = weighings ?? [];
+
+  const chartData = safeWeighings.map((w) => ({
+    date: new Date(w.weighing_date).toLocaleDateString("ru-RU"),
+    weight: Number(w.weight),
+  }));
 
   const currentWeight =
     animal.current_weight != null ? Number(animal.current_weight) : 0;
@@ -101,6 +102,21 @@ export default async function AnimalPage({ params }: PageProps) {
     animal.start_weight != null && animal.current_weight != null
       ? currentWeight - startWeight
       : 0;
+
+  // Суточный привес: берём первое и последнее взвешивание
+  let dailyGainG: number | null = null;
+  if (safeWeighings.length >= 2) {
+    const first = safeWeighings[0];
+    const last = safeWeighings[safeWeighings.length - 1];
+    const days = Math.max(
+      1,
+      Math.round(
+        (new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) /
+          86400000
+      )
+    );
+    dailyGainG = Math.round(((Number(last.weight) - Number(first.weight)) / days) * 1000);
+  }
 
   return (
     <section>
@@ -129,10 +145,11 @@ export default async function AnimalPage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Текущий вес" value={`${currentWeight} кг`} />
-        <StatCard title="Привес" value={`${gain >= 0 ? "+" : ""}${gain} кг`} />
+        <StatCard title="Общий привес" value={`${gain >= 0 ? "+" : ""}${gain} кг`} />
         <StatCard
-          title="Количество взвешиваний"
-          value={String(chartData.length)}
+          title="Суточный привес"
+          value={dailyGainG !== null ? `${dailyGainG > 0 ? "+" : ""}${dailyGainG} г/день` : "—"}
+          change={safeWeighings.length < 2 ? "Нужно ≥ 2 взвешиваний" : undefined}
         />
         <StatCard title="Статус" value={animal.status || LIVESTOCK_STATUS.ACTIVE} />
       </div>

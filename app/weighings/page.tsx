@@ -5,16 +5,17 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportWeighingsButton from "@/components/export-weighings-button";
+import WeighingsSearch from "@/components/weighings-search";
 import { supabase } from "@/lib/supabase";
 
 const PAGE_SIZE = 15;
 
 type Props = {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; search?: string }>;
 };
 
 export default async function WeighingsPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, search } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -35,8 +36,18 @@ export default async function WeighingsPage({ searchParams }: Props) {
       : 0;
   const latestDate = totalWeighings > 0 ? safeAll[0].weighing_date : "—";
 
-  // Paginated
-  const { data: weighings, count, error } = await supabase
+  // Если есть поиск — сначала находим animal_id по коду
+  let animalIds: number[] | null = null;
+  if (search) {
+    const { data: matched } = await supabase
+      .from("livestock")
+      .select("id")
+      .ilike("animal_code", `%${search}%`);
+    animalIds = (matched ?? []).map((a) => a.id);
+  }
+
+  // Paginated + filtered
+  let query = supabase
     .from("weighings")
     .select(
       "id, weighing_date, weight, comment, animal_id, livestock(animal_code, batch)",
@@ -44,6 +55,17 @@ export default async function WeighingsPage({ searchParams }: Props) {
     )
     .order("weighing_date", { ascending: false })
     .range(from, to);
+
+  if (animalIds !== null) {
+    if (animalIds.length === 0) {
+      // Поиск не дал результатов — возвращаем пустой список
+      query = query.in("animal_id", [-1]);
+    } else {
+      query = query.in("animal_id", animalIds);
+    }
+  }
+
+  const { data: weighings, count, error } = await query;
 
   const safeWeighings = weighings ?? [];
   const totalCount = count ?? 0;
@@ -86,24 +108,28 @@ export default async function WeighingsPage({ searchParams }: Props) {
               </div>
             ) : (
               <div className="space-y-5">
-                <div className="text-sm text-[#6b7280]">Найдено: {totalCount}</div>
+                <WeighingsSearch search={search ?? ""} />
+
+                <div className="text-sm text-[#6b7280]">
+                  {search
+                    ? `По запросу «${search}»: ${totalCount}`
+                    : `Найдено: ${totalCount}`}
+                </div>
 
                 {safeWeighings.length === 0 ? (
                   <div className="rounded-2xl bg-[#f8faf7] px-4 py-6 text-sm text-[#6b7280]">
-                    Пока взвешиваний нет. Добавь первую запись.
+                    {search ? "Животное не найдено." : "Пока взвешиваний нет."}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {safeWeighings.map((item) => {
-                      const animalCode =
-                        Array.isArray(item.livestock)
-                          ? item.livestock[0]?.animal_code
-                          : (item.livestock as { animal_code: string; batch: string | null } | null)?.animal_code;
+                      const animalCode = Array.isArray(item.livestock)
+                        ? item.livestock[0]?.animal_code
+                        : (item.livestock as { animal_code: string; batch: string | null } | null)?.animal_code;
 
-                      const batchName =
-                        Array.isArray(item.livestock)
-                          ? item.livestock[0]?.batch
-                          : (item.livestock as { animal_code: string; batch: string | null } | null)?.batch;
+                      const batchName = Array.isArray(item.livestock)
+                        ? item.livestock[0]?.batch
+                        : (item.livestock as { animal_code: string; batch: string | null } | null)?.batch;
 
                       return (
                         <div

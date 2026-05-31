@@ -23,7 +23,7 @@ export default async function Home() {
       .from("expenses")
       .select("id, amount, expense_date, category, batch, comment"),
     supabase.from("sales").select("id, total_amount, sale_date"),
-    supabase.from("weighings").select("id, weighing_date, weight"),
+    supabase.from("weighings").select("id, animal_id, weighing_date, weight").order("weighing_date", { ascending: true }),
     supabase.from("feed").select("id, feed_name, quantity, feed_date"),
   ]);
 
@@ -58,6 +58,31 @@ export default async function Home() {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 7);
+
+  // Суточный привес по всем животным (средний)
+  const byAnimal = safeWeighings.reduce<Record<number, typeof safeWeighings>>((acc, w) => {
+    if (!w.animal_id) return acc;
+    if (!acc[w.animal_id]) acc[w.animal_id] = [];
+    acc[w.animal_id].push(w);
+    return acc;
+  }, {});
+
+  const dailyGainsG = Object.values(byAnimal)
+    .filter((ws) => ws.length >= 2)
+    .map((ws) => {
+      const first = ws[0];
+      const last = ws[ws.length - 1];
+      const days = Math.max(
+        1,
+        Math.round((new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) / 86400000)
+      );
+      return ((Number(last.weight) - Number(first.weight)) / days) * 1000;
+    });
+
+  const avgDailyGainG =
+    dailyGainsG.length > 0
+      ? Math.round(dailyGainsG.reduce((s, v) => s + v, 0) / dailyGainsG.length)
+      : null;
 
   const totalAnimals = safeLivestock.length;
 
@@ -143,9 +168,9 @@ export default async function Home() {
       change: `${safeBatches.length} всего партий`,
     },
     {
-      title: "Расходы",
-      value: `₸ ${totalExpenses.toLocaleString("ru-RU")}`,
-      change: `${safeExpenses.length} записей`,
+      title: "Суточный привес",
+      value: avgDailyGainG !== null ? `${avgDailyGainG > 0 ? "+" : ""}${avgDailyGainG} г/день` : "—",
+      change: avgDailyGainG !== null ? "Среднее по хозяйству" : "Нужно ≥ 2 взвешивания",
     },
     {
       title: "Прибыль",
