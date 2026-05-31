@@ -24,7 +24,7 @@ export async function inviteUser(email: string, role: UserRole, name: string) {
     type: "invite",
     email,
     options: {
-      redirectTo: "https://agro-dashboard-roan.vercel.app",
+      redirectTo: "https://agro-dashboard-roan.vercel.app/auth/callback",
       data: { name },
     },
   });
