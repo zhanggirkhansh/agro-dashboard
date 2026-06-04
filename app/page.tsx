@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
+import QuickActionButton from "@/components/quick-action-button";
 import StatCard from "@/components/stat-card";
 import WeightGainChart from "@/components/weight-gain-chart";
 import ExpensesChart from "@/components/expenses-chart";
@@ -198,11 +198,13 @@ export default async function Home() {
 
   return (
     <section>
-      <PageHeader
-        eyebrow="Общий центр управления"
-        title="Dashboard"
-        actionLabel="+ Быстрое действие"
-      />
+      <header className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm text-[#6b7280]">Общий центр управления</p>
+          <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">Dashboard</h2>
+        </div>
+        <QuickActionButton />
+      </header>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
