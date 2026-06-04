@@ -194,6 +194,9 @@ textarea {
     background-color: #122018;
     border-color: #1e3326;
     color: #ddeadf;
+    /* Просим браузер рендерить нативные контролы (стрелку select,
+       иконку datepicker, скроллбар) в тёмных тонах */
+    color-scheme: dark;
   }
   .content-area input::placeholder,
   .content-area textarea::placeholder {
@@ -204,6 +207,14 @@ textarea {
   .content-area textarea:focus {
     border-color: #3d8060;
     outline-color: #3d8060;
+  }
+
+  /* ── Кнопка удаления (красная) в формах ── */
+  .content-area .ring-\[\#fecaca\] {
+    --tw-ring-color: #5a1a1a;
+  }
+  .content-area .hover\:bg-\[\#fee2e2\]:hover {
+    background-color: #2d1010;
   }
 
   /* ── Section card title ── */
