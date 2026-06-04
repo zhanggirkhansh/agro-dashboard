@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/components/status-badge";
+import DeleteButton from "@/components/delete-button";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 
 type Animal = {
@@ -95,12 +96,20 @@ export default function LivestockTable({ animals }: Props) {
                 </div>
               </button>
 
-              <Link
-                href={`/livestock/${animal.id}/edit`}
-                className="mt-3 flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-              >
-                Изменить
-              </Link>
+              <div className="mt-3 flex gap-2">
+                <Link
+                  href={`/livestock/${animal.id}/edit`}
+                  className="flex-1 rounded-xl bg-white px-4 py-2 text-center text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                >
+                  Изменить
+                </Link>
+                <DeleteButton
+                  table="livestock"
+                  id={animal.id}
+                  confirmMessage={`Удалить животное «${animal.animal_code || animal.id}»? Действие нельзя отменить.`}
+                  redirectTo="/livestock"
+                />
+              </div>
             </div>
           );
         })}
@@ -159,12 +168,20 @@ export default function LivestockTable({ animals }: Props) {
                     className="w-px whitespace-nowrap px-4 py-4"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Link
-                      href={`/livestock/${animal.id}/edit`}
-                      className="rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-                    >
-                      Изменить
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/livestock/${animal.id}/edit`}
+                        className="rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                      >
+                        Изменить
+                      </Link>
+                      <DeleteButton
+                        table="livestock"
+                        id={animal.id}
+                        confirmMessage={`Удалить животное «${animal.animal_code || animal.id}»? Действие нельзя отменить.`}
+                        redirectTo="/livestock"
+                      />
+                    </div>
                   </td>
                 </tr>
               );
