@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportExpensesButton from "@/components/export-expenses-button";
+import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
 import { formatDate } from "@/lib/format-date";
 
@@ -157,13 +158,18 @@ export default async function ExpensesPage({ searchParams }: Props) {
                           </div>
                         </div>
 
-                        <div className="mt-3 flex justify-end">
+                        <div className="mt-3 flex justify-end gap-2">
                           <Link
                             href={`/expenses/${item.id}/edit`}
                             className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
                           >
                             Изменить
                           </Link>
+                          <DeleteButton
+                            table="expenses"
+                            id={item.id}
+                            confirmMessage="Удалить эту запись расхода? Действие нельзя отменить."
+                          />
                         </div>
                       </div>
                     );

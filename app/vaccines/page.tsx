@@ -6,6 +6,7 @@ import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportVaccinesButton from "@/components/export-vaccines-button";
 import ExportVaccinationPDFButton from "@/components/export-vaccination-pdf-button";
+import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
@@ -205,12 +206,19 @@ export default async function VaccinesPage({ searchParams }: Props) {
                                     : "Без привязки"}
                               </p>
                             </div>
-                            <Link
-                              href={`/vaccines/${v.id}/edit`}
-                              className="shrink-0 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-                            >
-                              Изменить
-                            </Link>
+                            <div className="flex shrink-0 gap-2">
+                              <Link
+                                href={`/vaccines/${v.id}/edit`}
+                                className="rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                              >
+                                Изменить
+                              </Link>
+                              <DeleteButton
+                                table="vaccines"
+                                id={v.id}
+                                confirmMessage="Удалить запись вакцинации? Действие нельзя отменить."
+                              />
+                            </div>
                           </div>
 
                           <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">

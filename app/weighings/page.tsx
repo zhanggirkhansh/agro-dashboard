@@ -6,6 +6,7 @@ import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportWeighingsButton from "@/components/export-weighings-button";
 import WeighingsSearch from "@/components/weighings-search";
+import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
 import { formatDate } from "@/lib/format-date";
 
@@ -166,13 +167,18 @@ export default async function WeighingsPage({ searchParams }: Props) {
                             </div>
                           </div>
 
-                          <div className="mt-3 flex justify-end">
+                          <div className="mt-3 flex justify-end gap-2">
                             <Link
                               href={`/weighings/${item.id}/edit`}
                               className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
                             >
                               Изменить
                             </Link>
+                            <DeleteButton
+                              table="weighings"
+                              id={item.id}
+                              confirmMessage="Удалить запись взвешивания? Действие нельзя отменить."
+                            />
                           </div>
                         </div>
                       );

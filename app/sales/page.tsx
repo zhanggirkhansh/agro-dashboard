@@ -4,6 +4,7 @@ import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
+import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
 import { formatDate } from "@/lib/format-date";
 
@@ -106,7 +107,15 @@ export default async function SalesPage({ searchParams }: Props) {
                         </p>
                       </div>
 
-                      <div className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
+                      <div className="mt-3 flex justify-end">
+                        <DeleteButton
+                          table="sales"
+                          id={sale.id}
+                          confirmMessage="Удалить эту продажу? Действие нельзя отменить."
+                        />
+                      </div>
+
+                      <div className="mt-2 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Дата продажи</p>
                           <p className="mt-1 font-medium">{formatDate(sale.sale_date)}</p>
