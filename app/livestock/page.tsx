@@ -7,6 +7,7 @@ import LivestockTable from "@/components/livestock-table";
 import LivestockFilters from "@/components/livestock-filters";
 import Pagination from "@/components/pagination";
 import ExportLivestockButton from "@/components/export-livestock-button";
+import ExportAllAnimalsPDFButton from "@/components/export-all-animals-pdf-button";
 import { supabase } from "@/lib/supabase";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 
@@ -78,8 +79,9 @@ export default async function LivestockPage({ searchParams }: Props) {
           <h2 className="mt-1 text-3xl font-semibold">Поголовье</h2>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <ExportLivestockButton />
+          <ExportAllAnimalsPDFButton />
           <Link
             href="/livestock/new"
             className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"

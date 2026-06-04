@@ -251,6 +251,98 @@ export async function exportAnimalCardPDF(
   );
 }
 
+// ── Все карточки животных (массовый экспорт) ─────────────────────────────────
+
+type AnimalWithId = AnimalCard & { id: number };
+
+export async function exportAllAnimalsCardsPDF(
+  animals: AnimalWithId[],
+  weighingsByAnimal: Record<number, WeighingRecord[]>,
+  vaccinesByAnimal: Record<number, AnimalVaccine[]>
+) {
+  const animalSections = animals
+    .map((animal, index) => {
+      const weighings = weighingsByAnimal[animal.id] ?? [];
+      const vaccines = vaccinesByAnimal[animal.id] ?? [];
+      const gain =
+        animal.start_weight != null && animal.current_weight != null
+          ? animal.current_weight - animal.start_weight
+          : null;
+
+      const weighingsRows = weighings
+        .map(
+          (w) => `<tr>
+          <td>${fmtDate(w.weighing_date)}</td>
+          <td>${w.weight} кг</td>
+          <td>${w.comment ?? "—"}</td>
+        </tr>`
+        )
+        .join("");
+
+      const vaccinesRows = vaccines
+        .map(
+          (v) => `<tr>
+          <td>${v.vaccine_name}</td>
+          <td>${fmtDate(v.vaccination_date)}</td>
+          <td>${fmtDate(v.next_vaccination_date)}</td>
+          <td>${v.dose ?? "—"}</td>
+          <td>${v.veterinarian ?? "—"}</td>
+        </tr>`
+        )
+        .join("");
+
+      return `
+      <div style="${index > 0 ? "page-break-before: always;" : ""}padding-bottom: 20px;">
+        <div class="header">
+          <div>
+            <div class="header-title">WestKaz Agro</div>
+            <div class="header-sub">Карточка животного: ${animal.animal_code ?? "—"}</div>
+          </div>
+          <div class="header-date">Сформировано<br>${today()}</div>
+        </div>
+        <div class="content">
+          <div class="subtitle">Партия: ${animal.batch ?? "—"} · Статус: ${animal.status ?? "—"}</div>
+          <div class="info-grid">
+            <div class="info-box"><div class="label">Возраст</div><div class="value">${animal.age ?? "—"}</div></div>
+            <div class="info-box"><div class="label">Стартовый вес</div><div class="value">${animal.start_weight != null ? animal.start_weight + " кг" : "—"}</div></div>
+            <div class="info-box"><div class="label">Текущий вес</div><div class="value">${animal.current_weight != null ? animal.current_weight + " кг" : "—"}</div></div>
+            <div class="info-box"><div class="label">Общий привес</div><div class="value">${gain != null ? "+" + gain + " кг" : "—"}</div></div>
+          </div>
+          ${
+            weighings.length > 0
+              ? `<div class="section-title">История взвешиваний</div>
+            <table>
+              <thead><tr><th>Дата</th><th>Вес</th><th>Комментарий</th></tr></thead>
+              <tbody>${weighingsRows}</tbody>
+            </table>`
+              : ""
+          }
+          ${
+            vaccines.length > 0
+              ? `<div class="section-title">История вакцинаций</div>
+            <table>
+              <thead><tr><th>Вакцина</th><th>Дата</th><th>Ревакцинация</th><th>Доза</th><th>Ветеринар</th></tr></thead>
+              <tbody>${vaccinesRows}</tbody>
+            </table>`
+              : ""
+          }
+          <div class="footer">
+            <span>WestKaz Agro · ${today()}</span>
+            <span>Карточка: ${animal.animal_code ?? "—"}</span>
+          </div>
+        </div>
+      </div>`;
+    })
+    .join("");
+
+  const html = `<style>${CSS}</style>${animalSections}`;
+
+  await htmlToPdf(
+    html,
+    `все_карточки_КРС_${today().replace(/\./g, "-")}.pdf`
+  );
+}
+
 // ── Акт вакцинации ───────────────────────────────────────────────────────────
 
 type VaccineRecord = {
