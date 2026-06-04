@@ -43,14 +43,17 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="flex min-h-screen items-center justify-center bg-[#f6f8f4] px-6">
+    <section className="flex min-h-screen items-center justify-center bg-[#f6f8f4] px-6 dark:bg-[#0d1810]">
       <div className="w-full max-w-xl">
         <PageHeader eyebrow="Авторизация" title="Вход в систему" />
 
-        <SectionCard title="Введите данные" eyebrow="WestKaz Agro">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-[28px] border border-[#e6ebdf] bg-white p-5 shadow-sm sm:p-6 dark:border-[#1e3326] dark:bg-[#122018]">
+          <p className="text-sm text-[#6b7280] dark:text-[#7b9882]">WestKaz Agro</p>
+          <h3 className="mt-1 text-2xl font-semibold text-[#111827] dark:text-[#ddeadf]">Введите данные</h3>
+
+          <form onSubmit={handleSubmit} className="mt-5 space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium">Email</label>
+              <label className="mb-2 block text-sm font-medium dark:text-[#ddeadf]">Email</label>
               <input
                 type="email"
                 name="email"
@@ -58,12 +61,13 @@ export default function LoginPage() {
                 onChange={handleChange}
                 placeholder="Введите email"
                 required
-                className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
+                className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none dark:border-[#1e3326] dark:bg-[#0d1810] dark:text-[#ddeadf] dark:placeholder-[#567060]"
+                style={{ colorScheme: "light dark" }}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">Пароль</label>
+              <label className="mb-2 block text-sm font-medium dark:text-[#ddeadf]">Пароль</label>
               <input
                 type="password"
                 name="password"
@@ -71,25 +75,26 @@ export default function LoginPage() {
                 onChange={handleChange}
                 placeholder="Введите пароль"
                 required
-                className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
+                className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none dark:border-[#1e3326] dark:bg-[#0d1810] dark:text-[#ddeadf] dark:placeholder-[#567060]"
+                style={{ colorScheme: "light dark" }}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white hover:opacity-90 disabled:opacity-60"
+              className="w-full rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white hover:opacity-90 disabled:opacity-60 dark:bg-[#265c46]"
             >
               {loading ? "Вход..." : "Войти"}
             </button>
 
             {error && (
-              <div className="rounded-2xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]">
+              <div className="rounded-2xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c] dark:bg-[#220e0e] dark:text-[#f87171]">
                 {error}
               </div>
             )}
           </form>
-        </SectionCard>
+        </div>
       </div>
     </section>
   );
