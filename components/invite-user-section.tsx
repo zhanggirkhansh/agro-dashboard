@@ -48,7 +48,7 @@ export default function InviteUserSection() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="сотрудник@example.com"
               required
-              className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 text-sm outline-none focus:border-[#1f4d3a]"
+              className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 text-sm outline-none focus:border-[#1f4d3a] dark:border-[#1e3326] dark:bg-[#122018] dark:text-[#ddeadf] dark:placeholder-[#567060] dark:focus:border-[#3d8060]"
             />
           </div>
 
@@ -59,7 +59,7 @@ export default function InviteUserSection() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Асылбеков Аман"
-              className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 text-sm outline-none focus:border-[#1f4d3a]"
+              className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 text-sm outline-none focus:border-[#1f4d3a] dark:border-[#1e3326] dark:bg-[#122018] dark:text-[#ddeadf] dark:placeholder-[#567060] dark:focus:border-[#3d8060]"
             />
           </div>
         </div>
@@ -103,8 +103,8 @@ export default function InviteUserSection() {
             <div
               className={`rounded-2xl px-4 py-3 text-sm ${
                 result.type === "success"
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-red-50 text-red-700"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-[#0d2015] dark:text-[#52c48a]"
+                  : "bg-red-50 text-red-700 dark:bg-[#220e0e] dark:text-[#f87171]"
               }`}
             >
               {result.text}
@@ -114,25 +114,25 @@ export default function InviteUserSection() {
       </form>
 
       {result?.link && (
-        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="mb-2 text-sm font-medium text-emerald-800">
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-[#1a3d25] dark:bg-[#0d2015]">
+          <p className="mb-2 text-sm font-medium text-emerald-800 dark:text-[#52c48a]">
             Скопируй ссылку и отправь сотруднику в WhatsApp / Telegram / на почту:
           </p>
           <div className="flex items-center gap-2">
             <input
               readOnly
               value={result.link}
-              className="flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-xs text-[#374151] outline-none"
+              className="flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-xs text-[#374151] outline-none dark:border-[#1a3d25] dark:bg-[#122018] dark:text-[#ddeadf]"
               onClick={(e) => (e.target as HTMLInputElement).select()}
             />
             <button
               onClick={() => navigator.clipboard.writeText(result.link!)}
-              className="shrink-0 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-medium text-white hover:opacity-90"
+              className="shrink-0 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-medium text-white hover:opacity-90 dark:bg-[#265c46]"
             >
               Копировать
             </button>
           </div>
-          <p className="mt-2 text-xs text-emerald-700">Ссылка одноразовая — сотрудник установит пароль и сразу войдёт.</p>
+          <p className="mt-2 text-xs text-emerald-700 dark:text-[#52c48a]">Ссылка одноразовая — сотрудник установит пароль и сразу войдёт.</p>
         </div>
       )}
 
