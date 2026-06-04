@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoutButton from "@/components/logout-button";
+import ThemeToggle from "@/components/theme-toggle";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/toast-provider";
 import { LIVESTOCK_STATUS } from "@/constants/status";
@@ -164,7 +165,10 @@ export default function Sidebar() {
           </div>
         )}
 
-        <LogoutButton />
+        <div className="flex items-center justify-between">
+          <LogoutButton />
+          <ThemeToggle />
+        </div>
       </div>
     </aside>
   );

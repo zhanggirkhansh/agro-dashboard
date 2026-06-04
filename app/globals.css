@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind dark: prefix → реагирует на класс .dark на <html> */
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,13 +15,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -27,7 +23,6 @@ body {
 
 /* === MOBILE UX УЛУЧШЕНИЯ === */
 
-/* Плавные нажатия (как в приложениях) */
 button,
 a {
   transition: all 0.15s ease;
@@ -38,193 +33,206 @@ a:active {
   transform: scale(0.97);
 }
 
-/* Убираем серую подсветку при тапе (очень важно для iPhone) */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Плавный скролл */
 html {
   scroll-behavior: smooth;
 }
 
-/* Улучшение скролла на iOS */
 * {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Чуть приятнее инпуты на мобилке */
 input,
 select,
 textarea {
-  font-size: 16px; /* убирает zoom на iPhone */
+  font-size: 16px;
 }
 
 /* =============================================
    DARK MODE
-   Scoped to .dark-shell / .content-area so the
-   sidebar (already dark green) is left untouched.
+   Активируется классом .dark на <html>.
+   Следует системной теме по умолчанию —
+   переключатель в сайдбаре позволяет переопределить.
    ============================================= */
 
+/* Системная тема (без ручного выбора) */
 @media (prefers-color-scheme: dark) {
-
-  /* ── Page background ── */
-  .dark-shell {
-    background-color: #0d1810;
+  html:not([data-theme="light"]) {
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
+}
 
-  /* ── Login page background ── */
-  .bg-\[\#f6f8f4\] {
-    background-color: #0d1810;
-  }
+/* Ручной выбор тёмной темы */
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
 
-  /* ── Mobile sticky header ── */
-  .content-area header {
+/* ── Page background ── */
+.dark .dark-shell,
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .dark-shell
+} {
+  background-color: #0d1810;
+}
+
+/* Проще и надёжнее — единый блок правил для обоих сценариев */
+
+.dark .dark-shell { background-color: #0d1810; }
+.dark .bg-\[\#f6f8f4\] { background-color: #0d1810; }
+
+.dark .content-area header {
+  background-color: rgb(15 28 20 / 0.97);
+  border-color: #1e3326 !important;
+  color: #ddeadf;
+}
+.dark .content-area header .text-\[\#1f4d3a\] { color: #5ecb90; }
+.dark .content-area header .hover\:bg-\[\#f3f6ef\]:hover { background-color: #1e3326; }
+
+.dark .content-area .bg-white,
+.dark .content-area .bg-white\/95 { background-color: #122018; }
+
+.dark .content-area .bg-\[\#f8faf7\],
+.dark .content-area .bg-\[\#f6f9f4\],
+.dark .content-area .bg-\[\#f3f6ef\],
+.dark .content-area .bg-\[\#fcfdfb\],
+.dark .content-area .bg-\[\#edf5ee\],
+.dark .content-area .bg-\[\#e9f0e4\] { background-color: #182b1e; }
+
+.dark .content-area .bg-\[\#fffbf0\] { background-color: #231d0b; }
+.dark .content-area .bg-\[\#fef2f2\] { background-color: #220e0e; }
+.dark .content-area .bg-\[\#e6ebdf\] { background-color: #1e3326; }
+
+.dark .content-area .bg-\[\#1f4d3a\] { background-color: #265c46; }
+.dark .content-area .hover\:opacity-90:hover { opacity: 0.85; }
+
+.dark .content-area .border-\[\#e6ebdf\],
+.dark .content-area .border-\[\#ebf0e6\],
+.dark .content-area .border-\[\#eef2ea\],
+.dark .content-area .border-\[\#d9e2d2\] { border-color: #1e3326; }
+
+.dark .content-area .ring-\[\#e6ebdf\],
+.dark .content-area .ring-\[\#eef2ea\] { --tw-ring-color: #1e3326; }
+
+.dark .content-area .text-\[\#111827\],
+.dark .content-area .text-\[\#1f2937\],
+.dark .content-area .text-\[\#374151\] { color: #ddeadf; }
+
+.dark .content-area .text-\[\#6b7280\] { color: #7b9882; }
+.dark .content-area .text-\[\#94a3b8\] { color: #6b8272; }
+.dark .content-area .text-\[\#2f6a4f\] { color: #52c48a; }
+.dark .content-area .text-\[\#1f4d3a\] { color: #52c48a; }
+.dark .content-area .text-\[\#92400e\] { color: #d4943a; }
+.dark .content-area .text-\[\#d97706\] { color: #d4943a; }
+.dark .content-area .text-\[\#b91c1c\] { color: #f87171; }
+
+.dark .content-area .hover\:bg-\[\#f6f9f4\]:hover,
+.dark .content-area .hover\:bg-\[\#e9f0e4\]:hover,
+.dark .content-area .hover\:bg-\[\#f3f6ef\]:hover { background-color: #1e3326; }
+
+.dark .content-area input,
+.dark .content-area select,
+.dark .content-area textarea {
+  background-color: #122018;
+  border-color: #1e3326;
+  color: #ddeadf;
+  color-scheme: dark;
+}
+.dark .content-area input::placeholder,
+.dark .content-area textarea::placeholder { color: #567060; }
+.dark .content-area input:focus,
+.dark .content-area select:focus,
+.dark .content-area textarea:focus {
+  border-color: #3d8060;
+  outline-color: #3d8060;
+}
+
+.dark .content-area .ring-\[\#fecaca\] { --tw-ring-color: #5a1a1a; }
+.dark .content-area .hover\:bg-\[\#fee2e2\]:hover { background-color: #2d1010; }
+
+.dark .content-area h2,
+.dark .content-area h3 { color: #ddeadf; }
+
+.dark .content-area p.text-sm.text-\[\#6b7280\] { color: #7b9882; }
+
+/* Системная тема — те же правила когда нет ручного выбора */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .dark-shell { background-color: #0d1810; }
+  html:not([data-theme="light"]) .bg-\[\#f6f8f4\] { background-color: #0d1810; }
+
+  html:not([data-theme="light"]) .content-area header {
     background-color: rgb(15 28 20 / 0.97);
     border-color: #1e3326 !important;
     color: #ddeadf;
   }
-  .content-area header .text-\[\#1f4d3a\] {
-    color: #5ecb90;
-  }
-  .content-area header .hover\:bg-\[\#f3f6ef\]:hover {
-    background-color: #1e3326;
-  }
+  html:not([data-theme="light"]) .content-area header .text-\[\#1f4d3a\] { color: #5ecb90; }
+  html:not([data-theme="light"]) .content-area header .hover\:bg-\[\#f3f6ef\]:hover { background-color: #1e3326; }
 
-  /* ── White surfaces (cards, inputs, panels) ── */
-  .content-area .bg-white,
-  .content-area .bg-white\/95 {
-    background-color: #122018;
-  }
+  html:not([data-theme="light"]) .content-area .bg-white,
+  html:not([data-theme="light"]) .content-area .bg-white\/95 { background-color: #122018; }
 
-  /* ── Subtle backgrounds ── */
-  .content-area .bg-\[\#f8faf7\],
-  .content-area .bg-\[\#f6f9f4\],
-  .content-area .bg-\[\#f3f6ef\],
-  .content-area .bg-\[\#fcfdfb\],
-  .content-area .bg-\[\#edf5ee\],
-  .content-area .bg-\[\#e9f0e4\] {
-    background-color: #182b1e;
-  }
+  html:not([data-theme="light"]) .content-area .bg-\[\#f8faf7\],
+  html:not([data-theme="light"]) .content-area .bg-\[\#f6f9f4\],
+  html:not([data-theme="light"]) .content-area .bg-\[\#f3f6ef\],
+  html:not([data-theme="light"]) .content-area .bg-\[\#fcfdfb\],
+  html:not([data-theme="light"]) .content-area .bg-\[\#edf5ee\],
+  html:not([data-theme="light"]) .content-area .bg-\[\#e9f0e4\] { background-color: #182b1e; }
 
-  /* ── Warning subtle (amber) ── */
-  .content-area .bg-\[\#fffbf0\] {
-    background-color: #231d0b;
-  }
+  html:not([data-theme="light"]) .content-area .bg-\[\#fffbf0\] { background-color: #231d0b; }
+  html:not([data-theme="light"]) .content-area .bg-\[\#fef2f2\] { background-color: #220e0e; }
+  html:not([data-theme="light"]) .content-area .bg-\[\#e6ebdf\] { background-color: #1e3326; }
+  html:not([data-theme="light"]) .content-area .bg-\[\#1f4d3a\] { background-color: #265c46; }
 
-  /* ── Error subtle (red) ── */
-  .content-area .bg-\[\#fef2f2\] {
-    background-color: #220e0e;
-  }
+  html:not([data-theme="light"]) .content-area .border-\[\#e6ebdf\],
+  html:not([data-theme="light"]) .content-area .border-\[\#ebf0e6\],
+  html:not([data-theme="light"]) .content-area .border-\[\#eef2ea\],
+  html:not([data-theme="light"]) .content-area .border-\[\#d9e2d2\] { border-color: #1e3326; }
 
-  /* ── Skeleton pulse ── */
-  .content-area .bg-\[\#e6ebdf\] {
-    background-color: #1e3326;
-  }
+  html:not([data-theme="light"]) .content-area .ring-\[\#e6ebdf\],
+  html:not([data-theme="light"]) .content-area .ring-\[\#eef2ea\] { --tw-ring-color: #1e3326; }
 
-  /* ── Primary button / accent bg ── */
-  .content-area .bg-\[\#1f4d3a\] {
-    background-color: #265c46;
-  }
-  .content-area .hover\:opacity-90:hover {
-    opacity: 0.85;
-  }
+  html:not([data-theme="light"]) .content-area .text-\[\#111827\],
+  html:not([data-theme="light"]) .content-area .text-\[\#1f2937\],
+  html:not([data-theme="light"]) .content-area .text-\[\#374151\] { color: #ddeadf; }
 
-  /* ── Borders ── */
-  .content-area .border-\[\#e6ebdf\],
-  .content-area .border-\[\#ebf0e6\],
-  .content-area .border-\[\#eef2ea\],
-  .content-area .border-\[\#d9e2d2\] {
-    border-color: #1e3326;
-  }
+  html:not([data-theme="light"]) .content-area .text-\[\#6b7280\] { color: #7b9882; }
+  html:not([data-theme="light"]) .content-area .text-\[\#94a3b8\] { color: #6b8272; }
+  html:not([data-theme="light"]) .content-area .text-\[\#2f6a4f\] { color: #52c48a; }
+  html:not([data-theme="light"]) .content-area .text-\[\#1f4d3a\] { color: #52c48a; }
+  html:not([data-theme="light"]) .content-area .text-\[\#92400e\] { color: #d4943a; }
+  html:not([data-theme="light"]) .content-area .text-\[\#d97706\] { color: #d4943a; }
+  html:not([data-theme="light"]) .content-area .text-\[\#b91c1c\] { color: #f87171; }
 
-  /* ── Ring (outline shadows) ── */
-  .content-area .ring-\[\#e6ebdf\],
-  .content-area .ring-\[\#eef2ea\] {
-    --tw-ring-color: #1e3326;
-  }
+  html:not([data-theme="light"]) .content-area .hover\:bg-\[\#f6f9f4\]:hover,
+  html:not([data-theme="light"]) .content-area .hover\:bg-\[\#e9f0e4\]:hover,
+  html:not([data-theme="light"]) .content-area .hover\:bg-\[\#f3f6ef\]:hover { background-color: #1e3326; }
 
-  /* ── Primary text ── */
-  .content-area .text-\[\#111827\],
-  .content-area .text-\[\#1f2937\],
-  .content-area .text-\[\#374151\] {
-    color: #ddeadf;
-  }
-
-  /* ── Muted text ── */
-  .content-area .text-\[\#6b7280\] {
-    color: #7b9882;
-  }
-  .content-area .text-\[\#94a3b8\] {
-    color: #6b8272;
-  }
-
-  /* ── Green accent text ── */
-  .content-area .text-\[\#2f6a4f\] {
-    color: #52c48a;
-  }
-  .content-area .text-\[\#1f4d3a\] {
-    color: #52c48a;
-  }
-
-  /* ── Warning text (amber) ── */
-  .content-area .text-\[\#92400e\] {
-    color: #d4943a;
-  }
-  .content-area .text-\[\#d97706\] {
-    color: #d4943a;
-  }
-
-  /* ── Error text (red) ── */
-  .content-area .text-\[\#b91c1c\] {
-    color: #f87171;
-  }
-
-  /* ── Hover states ── */
-  .content-area .hover\:bg-\[\#f6f9f4\]:hover,
-  .content-area .hover\:bg-\[\#e9f0e4\]:hover,
-  .content-area .hover\:bg-\[\#f3f6ef\]:hover {
-    background-color: #1e3326;
-  }
-
-  /* ── Inputs and selects ── */
-  .content-area input,
-  .content-area select,
-  .content-area textarea {
+  html:not([data-theme="light"]) .content-area input,
+  html:not([data-theme="light"]) .content-area select,
+  html:not([data-theme="light"]) .content-area textarea {
     background-color: #122018;
     border-color: #1e3326;
     color: #ddeadf;
-    /* Просим браузер рендерить нативные контролы (стрелку select,
-       иконку datepicker, скроллбар) в тёмных тонах */
     color-scheme: dark;
   }
-  .content-area input::placeholder,
-  .content-area textarea::placeholder {
-    color: #567060;
-  }
-  .content-area input:focus,
-  .content-area select:focus,
-  .content-area textarea:focus {
+  html:not([data-theme="light"]) .content-area input::placeholder,
+  html:not([data-theme="light"]) .content-area textarea::placeholder { color: #567060; }
+  html:not([data-theme="light"]) .content-area input:focus,
+  html:not([data-theme="light"]) .content-area select:focus,
+  html:not([data-theme="light"]) .content-area textarea:focus {
     border-color: #3d8060;
     outline-color: #3d8060;
   }
 
-  /* ── Кнопка удаления (красная) в формах ── */
-  .content-area .ring-\[\#fecaca\] {
-    --tw-ring-color: #5a1a1a;
-  }
-  .content-area .hover\:bg-\[\#fee2e2\]:hover {
-    background-color: #2d1010;
-  }
+  html:not([data-theme="light"]) .content-area .ring-\[\#fecaca\] { --tw-ring-color: #5a1a1a; }
+  html:not([data-theme="light"]) .content-area .hover\:bg-\[\#fee2e2\]:hover { background-color: #2d1010; }
 
-  /* ── Section card title ── */
-  .content-area h2,
-  .content-area h3 {
-    color: #ddeadf;
-  }
+  html:not([data-theme="light"]) .content-area h2,
+  html:not([data-theme="light"]) .content-area h3 { color: #ddeadf; }
 
-  /* ── Page eyebrow / subtitle ── */
-  .content-area p.text-sm.text-\[\#6b7280\] {
-    color: #7b9882;
-  }
+  html:not([data-theme="light"]) .content-area p.text-sm.text-\[\#6b7280\] { color: #7b9882; }
 }

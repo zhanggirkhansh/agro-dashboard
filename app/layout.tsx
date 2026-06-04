@@ -16,6 +16,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            try {
+              var s = localStorage.getItem('theme');
+              var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (s === 'dark' || (!s && d)) {
+                document.documentElement.classList.add('dark');
+              } else if (s === 'light') {
+                document.documentElement.setAttribute('data-theme','light');
+              }
+            } catch(e){}
+          })();
+        `}} />
+      </head>
       <body className="bg-[#f5f7f2] text-[#1f2937]">
         <ToastProvider>
           <AppShell>{children}</AppShell>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
+import ThemeToggle from "@/components/theme-toggle";
 import { useUserRole } from "@/contexts/user-role-context";
 import { getMenuForRole, ROLE_LABELS } from "@/lib/roles";
 
@@ -102,7 +103,10 @@ export default function MobileSidebar({ open, onClose }: Props) {
                 </div>
               )}
 
-              <LogoutButton />
+              <div className="flex items-center justify-between">
+                <LogoutButton />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>
