@@ -23,7 +23,7 @@ export default function AppShell({ children }: Props) {
 
   return (
     <UserRoleProvider>
-    <div className="min-h-screen bg-[#f5f7f2]">
+    <div className="dark-shell min-h-screen bg-[#f5f7f2]">
       <MobileSidebar
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
@@ -34,7 +34,7 @@ export default function AppShell({ children }: Props) {
           <Sidebar />
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="content-area flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#e6ebdf] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(true)}

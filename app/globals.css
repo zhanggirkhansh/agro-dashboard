@@ -59,3 +59,161 @@ select,
 textarea {
   font-size: 16px; /* убирает zoom на iPhone */
 }
+
+/* =============================================
+   DARK MODE
+   Scoped to .dark-shell / .content-area so the
+   sidebar (already dark green) is left untouched.
+   ============================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  /* ── Page background ── */
+  .dark-shell {
+    background-color: #0d1810;
+  }
+
+  /* ── Login page background ── */
+  .bg-\[\#f6f8f4\] {
+    background-color: #0d1810;
+  }
+
+  /* ── Mobile sticky header ── */
+  .content-area header {
+    background-color: rgb(15 28 20 / 0.97);
+    border-color: #1e3326 !important;
+    color: #ddeadf;
+  }
+  .content-area header .text-\[\#1f4d3a\] {
+    color: #5ecb90;
+  }
+  .content-area header .hover\:bg-\[\#f3f6ef\]:hover {
+    background-color: #1e3326;
+  }
+
+  /* ── White surfaces (cards, inputs, panels) ── */
+  .content-area .bg-white,
+  .content-area .bg-white\/95 {
+    background-color: #122018;
+  }
+
+  /* ── Subtle backgrounds ── */
+  .content-area .bg-\[\#f8faf7\],
+  .content-area .bg-\[\#f6f9f4\],
+  .content-area .bg-\[\#f3f6ef\],
+  .content-area .bg-\[\#fcfdfb\],
+  .content-area .bg-\[\#edf5ee\],
+  .content-area .bg-\[\#e9f0e4\] {
+    background-color: #182b1e;
+  }
+
+  /* ── Warning subtle (amber) ── */
+  .content-area .bg-\[\#fffbf0\] {
+    background-color: #231d0b;
+  }
+
+  /* ── Error subtle (red) ── */
+  .content-area .bg-\[\#fef2f2\] {
+    background-color: #220e0e;
+  }
+
+  /* ── Skeleton pulse ── */
+  .content-area .bg-\[\#e6ebdf\] {
+    background-color: #1e3326;
+  }
+
+  /* ── Primary button / accent bg ── */
+  .content-area .bg-\[\#1f4d3a\] {
+    background-color: #265c46;
+  }
+  .content-area .hover\:opacity-90:hover {
+    opacity: 0.85;
+  }
+
+  /* ── Borders ── */
+  .content-area .border-\[\#e6ebdf\],
+  .content-area .border-\[\#ebf0e6\],
+  .content-area .border-\[\#eef2ea\],
+  .content-area .border-\[\#d9e2d2\] {
+    border-color: #1e3326;
+  }
+
+  /* ── Ring (outline shadows) ── */
+  .content-area .ring-\[\#e6ebdf\],
+  .content-area .ring-\[\#eef2ea\] {
+    --tw-ring-color: #1e3326;
+  }
+
+  /* ── Primary text ── */
+  .content-area .text-\[\#111827\],
+  .content-area .text-\[\#1f2937\],
+  .content-area .text-\[\#374151\] {
+    color: #ddeadf;
+  }
+
+  /* ── Muted text ── */
+  .content-area .text-\[\#6b7280\] {
+    color: #7b9882;
+  }
+  .content-area .text-\[\#94a3b8\] {
+    color: #6b8272;
+  }
+
+  /* ── Green accent text ── */
+  .content-area .text-\[\#2f6a4f\] {
+    color: #52c48a;
+  }
+  .content-area .text-\[\#1f4d3a\] {
+    color: #52c48a;
+  }
+
+  /* ── Warning text (amber) ── */
+  .content-area .text-\[\#92400e\] {
+    color: #d4943a;
+  }
+  .content-area .text-\[\#d97706\] {
+    color: #d4943a;
+  }
+
+  /* ── Error text (red) ── */
+  .content-area .text-\[\#b91c1c\] {
+    color: #f87171;
+  }
+
+  /* ── Hover states ── */
+  .content-area .hover\:bg-\[\#f6f9f4\]:hover,
+  .content-area .hover\:bg-\[\#e9f0e4\]:hover,
+  .content-area .hover\:bg-\[\#f3f6ef\]:hover {
+    background-color: #1e3326;
+  }
+
+  /* ── Inputs and selects ── */
+  .content-area input,
+  .content-area select,
+  .content-area textarea {
+    background-color: #122018;
+    border-color: #1e3326;
+    color: #ddeadf;
+  }
+  .content-area input::placeholder,
+  .content-area textarea::placeholder {
+    color: #567060;
+  }
+  .content-area input:focus,
+  .content-area select:focus,
+  .content-area textarea:focus {
+    border-color: #3d8060;
+    outline-color: #3d8060;
+  }
+
+  /* ── Section card title ── */
+  .content-area h2,
+  .content-area h3 {
+    color: #ddeadf;
+  }
+
+  /* ── Page eyebrow / subtitle ── */
+  .content-area p.text-sm.text-\[\#6b7280\] {
+    color: #7b9882;
+  }
+}
