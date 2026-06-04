@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import { supabase } from "@/lib/supabase";
+import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
 
@@ -74,7 +75,7 @@ export default async function FeedPage({ searchParams }: Props) {
           title="Общая стоимость"
           value={`₸ ${totalCost.toLocaleString("ru-RU")}`}
         />
-        <StatCard title="Последняя дата" value={String(lastDate)} />
+        <StatCard title="Последняя дата" value={formatDate(lastDate)} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
@@ -148,7 +149,7 @@ export default async function FeedPage({ searchParams }: Props) {
                           <div className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
                             <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                               <p className="text-[#6b7280]">Дата</p>
-                              <p className="mt-1 font-medium">{item.feed_date || "—"}</p>
+                              <p className="mt-1 font-medium">{formatDate(item.feed_date)}</p>
                             </div>
 
                             <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">

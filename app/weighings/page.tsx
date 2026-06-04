@@ -7,6 +7,7 @@ import Pagination from "@/components/pagination";
 import ExportWeighingsButton from "@/components/export-weighings-button";
 import WeighingsSearch from "@/components/weighings-search";
 import { supabase } from "@/lib/supabase";
+import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
 
@@ -92,7 +93,7 @@ export default async function WeighingsPage({ searchParams }: Props) {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Всего взвешиваний" value={String(totalWeighings)} />
         <StatCard title="Средний вес" value={`${avgWeight} кг`} />
-        <StatCard title="Последняя дата" value={String(latestDate)} />
+        <StatCard title="Последняя дата" value={formatDate(String(latestDate))} />
         <StatCard
           title="Активность"
           value={totalWeighings > 0 ? "Есть данные" : "Нет данных"}
@@ -154,7 +155,7 @@ export default async function WeighingsPage({ searchParams }: Props) {
                           <div className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                             <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                               <p className="text-[#6b7280]">Дата</p>
-                              <p className="mt-1 font-medium">{item.weighing_date}</p>
+                              <p className="mt-1 font-medium">{formatDate(item.weighing_date)}</p>
                             </div>
 
                             <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">

@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import { supabase } from "@/lib/supabase";
+import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
 
@@ -56,7 +57,7 @@ export default async function SalesPage({ searchParams }: Props) {
           title="Общая выручка"
           value={`₸ ${totalRevenue.toLocaleString("ru-RU")}`}
         />
-        <StatCard title="Последняя продажа" value={String(latestSale)} />
+        <StatCard title="Последняя продажа" value={formatDate(latestSale)} />
       </div>
 
       <div className="mt-6">
@@ -108,7 +109,7 @@ export default async function SalesPage({ searchParams }: Props) {
                       <div className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">
                           <p className="text-[#6b7280]">Дата продажи</p>
-                          <p className="mt-1 font-medium">{sale.sale_date || "—"}</p>
+                          <p className="mt-1 font-medium">{formatDate(sale.sale_date)}</p>
                         </div>
 
                         <div className="rounded-2xl bg-white p-3 ring-1 ring-[#eef2ea]">

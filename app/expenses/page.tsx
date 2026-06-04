@@ -6,6 +6,7 @@ import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportExpensesButton from "@/components/export-expenses-button";
 import { supabase } from "@/lib/supabase";
+import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
 
@@ -144,7 +145,7 @@ export default async function ExpensesPage({ searchParams }: Props) {
                           <div className="rounded-xl bg-[#f8faf7] p-3">
                             <p className="text-[#6b7280]">Дата</p>
                             <p className="mt-1 font-medium">
-                              {item.expense_date || "—"}
+                              {formatDate(item.expense_date)}
                             </p>
                           </div>
 

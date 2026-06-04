@@ -7,6 +7,7 @@ import WeightGainChart from "@/components/weight-gain-chart";
 import ExpensesChart from "@/components/expenses-chart";
 import { supabase } from "@/lib/supabase";
 import { LIVESTOCK_STATUS } from "@/constants/status";
+import { formatDate } from "@/lib/format-date";
 
 export default async function Home() {
   const [
@@ -128,7 +129,7 @@ export default async function Home() {
       description: `${item.category || "Расход"} · ₸ ${Number(
         item.amount || 0
       ).toLocaleString("ru-RU")}`,
-      time: item.expense_date || "—",
+      time: formatDate(item.expense_date),
       sortDate: item.expense_date || "",
     })),
     ...safeSales.slice(0, 3).map((item) => ({
@@ -136,13 +137,13 @@ export default async function Home() {
       description: `Продажа на ₸ ${Number(item.total_amount || 0).toLocaleString(
         "ru-RU"
       )}`,
-      time: item.sale_date || "—",
+      time: formatDate(item.sale_date),
       sortDate: item.sale_date || "",
     })),
     ...safeWeighings.slice(0, 3).map((item) => ({
       title: "Добавлено взвешивание",
       description: `Вес: ${Number(item.weight || 0)} кг`,
-      time: item.weighing_date || "—",
+      time: formatDate(item.weighing_date),
       sortDate: item.weighing_date || "",
     })),
     ...safeFeed.slice(0, 3).map((item) => ({
@@ -150,7 +151,7 @@ export default async function Home() {
       description: `${item.feed_name || "Корм"} · ${Number(
         item.quantity || 0
       )}`,
-      time: item.feed_date || "—",
+      time: formatDate(item.feed_date),
       sortDate: item.feed_date || "",
     })),
   ]

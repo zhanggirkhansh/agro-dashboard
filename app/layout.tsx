@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
 import { ToastProvider } from "@/components/toast-provider";
+import SWRegister from "@/components/sw-register";
 
 export const metadata: Metadata = {
   title: "WestKaz Agro Dashboard",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <ToastProvider>
           <AppShell>{children}</AppShell>
         </ToastProvider>
+        <SWRegister />
       </body>
     </html>
   );

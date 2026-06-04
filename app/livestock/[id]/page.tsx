@@ -9,6 +9,7 @@ import WeightChart from "@/components/weight-chart";
 import { supabase } from "@/lib/supabase";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
+import { formatDate } from "@/lib/format-date";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -370,15 +371,13 @@ export default async function AnimalPage({ params }: PageProps) {
                       <div className="rounded-xl bg-[#f8faf7] p-3">
                         <p className="text-[#6b7280]">Дата</p>
                         <p className="mt-1 font-medium">
-                          {new Date(v.vaccination_date).toLocaleDateString("ru-RU")}
+                          {formatDate(v.vaccination_date)}
                         </p>
                       </div>
                       <div className="rounded-xl bg-[#f8faf7] p-3">
                         <p className="text-[#6b7280]">Следующая</p>
                         <p className={`mt-1 font-medium ${vStatus === VACCINE_STATUS.OVERDUE ? "text-[#b91c1c]" : ""}`}>
-                          {v.next_vaccination_date
-                            ? new Date(v.next_vaccination_date).toLocaleDateString("ru-RU")
-                            : "—"}
+                          {formatDate(v.next_vaccination_date)}
                         </p>
                       </div>
                       <div className="rounded-xl bg-[#f8faf7] p-3">
