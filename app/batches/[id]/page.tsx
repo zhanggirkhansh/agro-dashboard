@@ -4,6 +4,7 @@ import Link from "next/link";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
+import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
@@ -71,12 +72,26 @@ export default async function BatchDetailsPage({ params }: Props) {
           </h2>
         </div>
 
-        <Link
-          href="/batches"
-          className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-        >
-          ← Назад к партиям
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href={`/batches/${numericId}/edit`}
+            className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+          >
+            Изменить
+          </Link>
+          <DeleteButton
+            table="batches"
+            id={numericId}
+            confirmMessage={`Удалить партию «${batch.batch_name}»? Действие нельзя отменить.`}
+            redirectTo="/batches"
+          />
+          <Link
+            href="/batches"
+            className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+          >
+            ← Назад
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
