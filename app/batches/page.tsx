@@ -7,6 +7,7 @@ import StatusBadge from "@/components/status-badge";
 import Pagination from "@/components/pagination";
 import { supabase } from "@/lib/supabase";
 import { BATCH_STATUS, BATCH_STATUSES, LIVESTOCK_STATUS } from "@/constants/status";
+import DeleteButton from "@/components/delete-button";
 
 const PAGE_SIZE = 12;
 
@@ -206,6 +207,13 @@ export default async function BatchesPage({ searchParams }: Props) {
                             >
                               Изменить
                             </Link>
+
+                            <DeleteButton
+                              table="batches"
+                              id={batch.id}
+                              confirmMessage={`Удалить партию «${batch.batch_name}»? Действие нельзя отменить.`}
+                              redirectTo="/batches"
+                            />
                           </div>
                         </div>
                       );
