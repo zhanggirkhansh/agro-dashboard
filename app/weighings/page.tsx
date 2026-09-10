@@ -7,7 +7,7 @@ import Pagination from "@/components/pagination";
 import ExportWeighingsButton from "@/components/export-weighings-button";
 import WeighingsSearch from "@/components/weighings-search";
 import DeleteButton from "@/components/delete-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
@@ -17,6 +17,7 @@ type Props = {
 };
 
 export default async function WeighingsPage({ searchParams }: Props) {
+  const supabase = await createClient();
   const { page: pageParam, search } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;

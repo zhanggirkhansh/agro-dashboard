@@ -5,11 +5,12 @@ import QuickActionButton from "@/components/quick-action-button";
 import StatCard from "@/components/stat-card";
 import WeightGainChart from "@/components/weight-gain-chart";
 import ExpensesChart from "@/components/expenses-chart";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { formatDate } from "@/lib/format-date";
 
 export default async function Home() {
+  const supabase = await createClient();
   const [
     { data: livestock },
     { data: batches },

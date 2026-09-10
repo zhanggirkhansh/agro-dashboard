@@ -5,7 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import Pagination from "@/components/pagination";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { BATCH_STATUS, BATCH_STATUSES, LIVESTOCK_STATUS } from "@/constants/status";
 import DeleteButton from "@/components/delete-button";
 
@@ -16,6 +16,7 @@ type Props = {
 };
 
 export default async function BatchesPage({ searchParams }: Props) {
+  const supabase = await createClient();
   const { status, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;

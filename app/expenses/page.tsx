@@ -6,7 +6,7 @@ import StatCard from "@/components/stat-card";
 import Pagination from "@/components/pagination";
 import ExportExpensesButton from "@/components/export-expenses-button";
 import DeleteButton from "@/components/delete-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 15;
@@ -16,6 +16,7 @@ type Props = {
 };
 
 export default async function ExpensesPage({ searchParams }: Props) {
+  const supabase = await createClient();
   const { category, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;

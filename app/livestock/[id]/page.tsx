@@ -6,7 +6,7 @@ import ExportAnimalPDFButton from "@/components/export-animal-pdf-button";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import WeightChart from "@/components/weight-chart";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
@@ -16,6 +16,7 @@ type PageProps = {
 };
 
 export default async function AnimalPage({ params }: PageProps) {
+  const supabase = await createClient();
   const { id } = await params;
   const animalId = Number(id);
 

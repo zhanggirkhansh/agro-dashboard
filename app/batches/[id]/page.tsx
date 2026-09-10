@@ -5,7 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import DeleteButton from "@/components/delete-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export default async function BatchDetailsPage({ params }: Props) {
+  const supabase = await createClient();
   const { id } = await params;
   const numericId = Number(id);
 

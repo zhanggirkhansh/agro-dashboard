@@ -6,9 +6,10 @@ import ProfitChart from "@/components/profit-chart";
 import RevenueExpenseChart from "@/components/revenue-expense-chart";
 import ExportAnalyticsButton from "@/components/export-analytics-button";
 import ExportFinancialPDFButton from "@/components/export-financial-pdf-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 
 export default async function AnalyticsPage() {
+  const supabase = await createClient();
   const [{ data: batches }, { data: expenses }, { data: sales }, { data: livestock }] =
     await Promise.all([
       supabase.from("batches").select("id, batch_name"),

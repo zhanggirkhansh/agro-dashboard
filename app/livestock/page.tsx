@@ -8,7 +8,7 @@ import LivestockFilters from "@/components/livestock-filters";
 import Pagination from "@/components/pagination";
 import ExportLivestockButton from "@/components/export-livestock-button";
 import ExportAllAnimalsPDFButton from "@/components/export-all-animals-pdf-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 
 const PAGE_SIZE = 20;
@@ -23,6 +23,7 @@ type Props = {
 };
 
 export default async function LivestockPage({ searchParams }: Props) {
+  const supabase = await createClient();
   const { search, status, batch, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;

@@ -7,7 +7,7 @@ import Pagination from "@/components/pagination";
 import ExportVaccinesButton from "@/components/export-vaccines-button";
 import ExportVaccinationPDFButton from "@/components/export-vaccination-pdf-button";
 import DeleteButton from "@/components/delete-button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
 
@@ -24,6 +24,7 @@ type Props = {
 };
 
 export default async function VaccinesPage({ searchParams }: Props) {
+  const supabase = await createClient();
   const { status, vaccine, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;
