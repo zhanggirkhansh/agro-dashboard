@@ -18,15 +18,21 @@ export default async function Home() {
     { data: sales },
     { data: weighings },
     { data: feed },
+    { data: recentExpenses },
+    { data: recentSales },
+    { data: recentWeighings },
+    { data: recentFeed },
   ] = await Promise.all([
     supabase.from("livestock").select("id, status, start_weight, created_at"),
     supabase.from("batches").select("id, status, batch_name"),
-    supabase
-      .from("expenses")
-      .select("id, amount, expense_date, category, batch, comment"),
+    supabase.from("expenses").select("id, amount, expense_date, category"),
     supabase.from("sales").select("id, total_amount, sale_date"),
     supabase.from("weighings").select("id, animal_id, weighing_date, weight").order("weighing_date", { ascending: true }),
-    supabase.from("feed").select("id, feed_name, quantity, feed_date"),
+    supabase.from("feed").select("id, feed_name, quantity, feed_date, cost"),
+    supabase.from("expenses").select("id, amount, expense_date, category").order("expense_date", { ascending: false }).limit(3),
+    supabase.from("sales").select("id, total_amount, sale_date").order("sale_date", { ascending: false }).limit(3),
+    supabase.from("weighings").select("id, weight, weighing_date").order("weighing_date", { ascending: false }).limit(3),
+    supabase.from("feed").select("id, feed_name, quantity, feed_date").order("feed_date", { ascending: false }).limit(3),
   ]);
 
   const safeLivestock = livestock ?? [];
@@ -125,33 +131,27 @@ export default async function Home() {
   ).length;
 
   const recentActivities = [
-    ...safeExpenses.slice(0, 3).map((item) => ({
+    ...(recentExpenses ?? []).map((item) => ({
       title: "Добавлен расход",
-      description: `${item.category || "Расход"} · ₸ ${Number(
-        item.amount || 0
-      ).toLocaleString("ru-RU")}`,
+      description: `${item.category || "Расход"} · ₸ ${Number(item.amount || 0).toLocaleString("ru-RU")}`,
       time: formatDate(item.expense_date),
       sortDate: item.expense_date || "",
     })),
-    ...safeSales.slice(0, 3).map((item) => ({
+    ...(recentSales ?? []).map((item) => ({
       title: "Оформлена продажа",
-      description: `Продажа на ₸ ${Number(item.total_amount || 0).toLocaleString(
-        "ru-RU"
-      )}`,
+      description: `Продажа на ₸ ${Number(item.total_amount || 0).toLocaleString("ru-RU")}`,
       time: formatDate(item.sale_date),
       sortDate: item.sale_date || "",
     })),
-    ...safeWeighings.slice(0, 3).map((item) => ({
+    ...(recentWeighings ?? []).map((item) => ({
       title: "Добавлено взвешивание",
       description: `Вес: ${Number(item.weight || 0)} кг`,
       time: formatDate(item.weighing_date),
       sortDate: item.weighing_date || "",
     })),
-    ...safeFeed.slice(0, 3).map((item) => ({
+    ...(recentFeed ?? []).map((item) => ({
       title: "Добавлена запись по корму",
-      description: `${item.feed_name || "Корм"} · ${Number(
-        item.quantity || 0
-      )}`,
+      description: `${item.feed_name || "Корм"} · ${Number(item.quantity || 0)}`,
       time: formatDate(item.feed_date),
       sortDate: item.feed_date || "",
     })),
