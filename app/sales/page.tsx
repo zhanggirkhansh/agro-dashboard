@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -108,7 +109,13 @@ export default async function SalesPage({ searchParams }: Props) {
                         </p>
                       </div>
 
-                      <div className="mt-3 flex justify-end">
+                      <div className="mt-3 flex justify-end gap-2">
+                        <Link
+                          href={`/sales/${sale.id}/edit`}
+                          className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                        >
+                          Изменить
+                        </Link>
                         <DeleteButton
                           table="sales"
                           id={sale.id}
