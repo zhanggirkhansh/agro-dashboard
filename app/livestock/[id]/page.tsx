@@ -128,19 +128,6 @@ export default async function AnimalPage({ params }: PageProps) {
       )
     );
     dailyGainG = Math.round(((Number(last.weight) - Number(first.weight)) / days) * 1000);
-  } else if (safeWeighings.length === 1 && animal.start_weight != null && animal.created_at) {
-    // Одно взвешивание: start_weight + created_at как базовая точка
-    const weighing = safeWeighings[0];
-    const days = Math.max(
-      1,
-      Math.round(
-        (new Date(weighing.weighing_date).getTime() - new Date(animal.created_at).getTime()) /
-          86400000
-      )
-    );
-    dailyGainG = Math.round(
-      ((Number(weighing.weight) - Number(animal.start_weight)) / days) * 1000
-    );
   }
 
   return (
@@ -175,7 +162,7 @@ export default async function AnimalPage({ params }: PageProps) {
         <StatCard
           title="Суточный привес"
           value={dailyGainG !== null ? `${dailyGainG > 0 ? "+" : ""}${dailyGainG} г/день` : "—"}
-          change={dailyGainG === null ? "Нужно взвешивание" : undefined}
+          change={dailyGainG === null ? "Нужно ≥ 2 взвешивания" : undefined}
         />
         <StatCard title="Статус" value={animal.status || LIVESTOCK_STATUS.ACTIVE} />
       </div>
