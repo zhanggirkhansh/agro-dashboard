@@ -17,18 +17,16 @@ export default async function Home() {
     { data: expenses },
     { data: sales },
     { data: weighings },
-    { data: feed },
     { data: recentExpenses },
     { data: recentSales },
     { data: recentWeighings },
     { data: recentFeed },
   ] = await Promise.all([
-    supabase.from("livestock").select("id, status, start_weight, created_at"),
-    supabase.from("batches").select("id, status, batch_name"),
-    supabase.from("expenses").select("id, amount, expense_date, category"),
-    supabase.from("sales").select("id, total_amount, sale_date"),
-    supabase.from("weighings").select("id, animal_id, weighing_date, weight").order("weighing_date", { ascending: true }),
-    supabase.from("feed").select("id, feed_name, quantity, feed_date, cost"),
+    supabase.from("livestock").select("id, status, start_weight, created_at").limit(2000),
+    supabase.from("batches").select("id, status").limit(500),
+    supabase.from("expenses").select("amount, category").limit(5000),
+    supabase.from("sales").select("total_amount").limit(2000),
+    supabase.from("weighings").select("animal_id, weighing_date, weight").order("weighing_date", { ascending: true }).limit(5000),
     supabase.from("expenses").select("id, amount, expense_date, category").order("expense_date", { ascending: false }).limit(3),
     supabase.from("sales").select("id, total_amount, sale_date").order("sale_date", { ascending: false }).limit(3),
     supabase.from("weighings").select("id, weight, weighing_date").order("weighing_date", { ascending: false }).limit(3),
@@ -40,7 +38,6 @@ export default async function Home() {
   const safeExpenses = expenses ?? [];
   const safeSales = sales ?? [];
   const safeWeighings = weighings ?? [];
-  const safeFeed = feed ?? [];
 
   // WeightGainChart: средний вес по месяцам
   const weightByMonth = safeWeighings.reduce<Record<string, number[]>>((acc, w) => {
