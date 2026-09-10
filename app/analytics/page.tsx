@@ -23,18 +23,18 @@ export default async function AnalyticsPage() {
   const safeSales = sales ?? [];
   const safeLivestock = livestock ?? [];
 
-  const analytics = safeBatches.map((batch: any) => {
+  const analytics = safeBatches.map((batch) => {
     const batchExpenses = safeExpenses
-      .filter((e: any) => e.batch_id === batch.id)
-      .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+      .filter((e) => e.batch_id === batch.id)
+      .reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     const batchRevenue = safeSales
-      .filter((s: any) => s.batch_id === batch.id)
-      .reduce((sum: number, s: any) => sum + Number(s.total_amount || 0), 0);
+      .filter((s) => s.batch_id === batch.id)
+      .reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
 
-    const batchAnimals = safeLivestock.filter((a: any) => a.batch_id === batch.id);
+    const batchAnimals = safeLivestock.filter((a) => a.batch_id === batch.id);
 
-    const totalGain = batchAnimals.reduce((sum: number, animal: any) => {
+    const totalGain = batchAnimals.reduce((sum, animal) => {
       const start = Number(animal.start_weight || 0);
       const current = Number(animal.current_weight || 0);
       return sum + (current - start);
@@ -159,7 +159,7 @@ export default async function AnalyticsPage() {
                   </div>
                 )}
 
-                {analytics.map((item: any) => (
+                {analytics.map((item) => (
                   <div
                     key={item.id}
                     className="rounded-2xl border border-[#ebf0e6] bg-white p-4"
