@@ -22,6 +22,8 @@ export default async function BatchDetailsPage({ params }: Props) {
     { data: batch, error: batchError },
     { data: animals, error: animalsError },
     { data: batchVaccines },
+    { data: batchExpenses },
+    { data: batchSales },
   ] = await Promise.all([
     supabase.from("batches").select("*").eq("id", numericId).single(),
     supabase.from("livestock").select("*").eq("batch_id", numericId).order("created_at", { ascending: false }),
@@ -30,6 +32,16 @@ export default async function BatchDetailsPage({ params }: Props) {
       .select("id, vaccine_name, vaccination_date, next_vaccination_date, dose, veterinarian, vaccine_lot")
       .eq("batch_id", numericId)
       .order("vaccination_date", { ascending: false }),
+    supabase
+      .from("expenses")
+      .select("id, amount, category, expense_date")
+      .eq("batch_id", numericId)
+      .order("expense_date", { ascending: false }),
+    supabase
+      .from("sales")
+      .select("id, total_amount, weight, price_per_kg, sale_date, livestock(animal_code)")
+      .eq("batch_id", numericId)
+      .order("sale_date", { ascending: false }),
   ]);
 
   if (batchError || !batch) {
@@ -62,6 +74,21 @@ export default async function BatchDetailsPage({ params }: Props) {
           return sum + (current - start);
         }, 0)
       : 0;
+
+  const safeExpenses = batchExpenses ?? [];
+  const safeSales = batchSales ?? [];
+
+  const totalExpenses = safeExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+  const totalRevenue = safeSales.reduce((s, sale) => s + Number(sale.total_amount || 0), 0);
+  const profit = totalRevenue - totalExpenses;
+  const roi = totalExpenses > 0 ? (profit / totalExpenses) * 100 : null;
+
+  const expensesByCategory = safeExpenses.reduce<Record<string, number>>((acc, e) => {
+    const cat = e.category || "Прочее";
+    acc[cat] = (acc[cat] || 0) + Number(e.amount || 0);
+    return acc;
+  }, {});
+  const expenseCats = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1]);
 
   return (
     <section>
@@ -104,6 +131,65 @@ export default async function BatchDetailsPage({ params }: Props) {
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="space-y-5 xl:col-span-2">
+
+          {/* Финансовая сводка */}
+          <SectionCard title="Финансовая сводка" eyebrow="По данным из системы">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="text-sm text-[#6b7280]">Расходы</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {totalExpenses > 0 ? `₸ ${totalExpenses.toLocaleString("ru-RU")}` : "—"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="text-sm text-[#6b7280]">Выручка</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {totalRevenue > 0 ? `₸ ${totalRevenue.toLocaleString("ru-RU")}` : "—"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="text-sm text-[#6b7280]">Прибыль</p>
+                <p className={`mt-1 text-lg font-semibold ${profit >= 0 ? "text-[#2f6a4f]" : "text-[#b91c1c]"}`}>
+                  {totalExpenses > 0 || totalRevenue > 0
+                    ? `${profit >= 0 ? "+" : ""}₸ ${profit.toLocaleString("ru-RU")}`
+                    : "—"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-[#f8faf7] p-4">
+                <p className="text-sm text-[#6b7280]">ROI</p>
+                <p className={`mt-1 text-lg font-semibold ${roi !== null && roi >= 0 ? "text-[#2f6a4f]" : "text-[#b91c1c]"}`}>
+                  {roi !== null ? `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}%` : "—"}
+                </p>
+              </div>
+            </div>
+
+            {expenseCats.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-3 text-sm font-medium text-[#6b7280]">Расходы по категориям</p>
+                <div className="space-y-2">
+                  {expenseCats.map(([cat, amount]) => (
+                    <div key={cat} className="flex items-center justify-between gap-3 text-sm">
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <div
+                          className="h-2 rounded-full bg-[#2f6a4f]"
+                          style={{ width: `${Math.round((amount / totalExpenses) * 100)}%`, minWidth: "4px", maxWidth: "60%" }}
+                        />
+                        <span className="truncate text-[#374151]">{cat}</span>
+                      </div>
+                      <span className="shrink-0 font-medium">₸ {amount.toLocaleString("ru-RU")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {safeExpenses.length === 0 && safeSales.length === 0 && (
+              <p className="mt-2 text-sm text-[#6b7280]">
+                Нет привязанных расходов и продаж. Добавьте расходы с указанием партии.
+              </p>
+            )}
+          </SectionCard>
+
           <SectionCard title="Информация о партии" eyebrow="Основные данные">
             <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
               <div className="rounded-2xl bg-[#f8faf7] p-4">
