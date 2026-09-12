@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/components/status-badge";
 import DeleteButton from "@/components/delete-button";
-import { LIVESTOCK_STATUS } from "@/constants/status";
+import { supabase } from "@/lib/supabase";
+import { LIVESTOCK_STATUS, LIVESTOCK_STATUSES } from "@/constants/status";
 
 type Animal = {
   id: number;
@@ -22,6 +24,41 @@ type Props = {
 
 export default function LivestockTable({ animals }: Props) {
   const router = useRouter();
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState<string>(LIVESTOCK_STATUSES[0]);
+  const [applying, setApplying] = useState(false);
+
+  const allSelected = animals.length > 0 && selected.size === animals.length;
+  const someSelected = selected.size > 0 && !allSelected;
+
+  function toggleOne(id: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(animals.map((a) => a.id)));
+    }
+  }
+
+  async function applyBulkStatus() {
+    if (selected.size === 0) return;
+    setApplying(true);
+    await supabase
+      .from("livestock")
+      .update({ status: bulkStatus })
+      .in("id", [...selected]);
+    setSelected(new Set());
+    setApplying(false);
+    router.refresh();
+  }
 
   if (animals.length === 0) {
     return (
@@ -40,61 +77,60 @@ export default function LivestockTable({ animals }: Props) {
             animal.start_weight != null && animal.current_weight != null
               ? Number(animal.current_weight) - Number(animal.start_weight)
               : null;
+          const isChecked = selected.has(animal.id);
 
           return (
             <div
               key={animal.id}
-              className="rounded-2xl border border-[#ebf0e6] bg-white p-4"
+              className={`rounded-2xl border p-4 transition ${isChecked ? "border-[#1f4d3a] bg-[#f0fdf4]" : "border-[#ebf0e6] bg-white"}`}
             >
-              <button
-                type="button"
-                onClick={() => router.push(`/livestock/${animal.id}`)}
-                className="w-full text-left"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-[#1f4d3a]">
-                      {animal.animal_code || `ID-${animal.id}`}
-                    </p>
-                    <p className="mt-1 text-sm text-[#6b7280]">
-                      Партия: {animal.batch || "Не указана"}
-                    </p>
-                  </div>
-                  <StatusBadge status={animal.status || LIVESTOCK_STATUS.SOLD} />
+              <div className="mb-3 flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => toggleOne(animal.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-4 w-4 cursor-pointer rounded accent-[#1f4d3a]"
+                />
+                <button
+                  type="button"
+                  onClick={() => router.push(`/livestock/${animal.id}`)}
+                  className="flex-1 text-left"
+                >
+                  <p className="font-semibold text-[#1f4d3a]">
+                    {animal.animal_code || `ID-${animal.id}`}
+                  </p>
+                  <p className="mt-0.5 text-sm text-[#6b7280]">
+                    Партия: {animal.batch || "Не указана"}
+                  </p>
+                </button>
+                <StatusBadge status={animal.status || LIVESTOCK_STATUS.SOLD} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl bg-[#f8faf7] p-3">
+                  <p className="text-[#6b7280]">Возраст</p>
+                  <p className="mt-1 font-medium">{animal.age || "—"}</p>
                 </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                  <div className="rounded-xl bg-[#f8faf7] p-3">
-                    <p className="text-[#6b7280]">Возраст</p>
-                    <p className="mt-1 font-medium">{animal.age || "—"}</p>
-                  </div>
-
-                  <div className="rounded-xl bg-[#f8faf7] p-3">
-                    <p className="text-[#6b7280]">Привес</p>
-                    <p className="mt-1 font-medium text-[#2f6a4f]">
-                      {gain != null ? `+${gain} кг` : "—"}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-[#f8faf7] p-3">
-                    <p className="text-[#6b7280]">Стартовый вес</p>
-                    <p className="mt-1 font-medium">
-                      {animal.start_weight != null
-                        ? `${animal.start_weight} кг`
-                        : "—"}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-[#f8faf7] p-3">
-                    <p className="text-[#6b7280]">Текущий вес</p>
-                    <p className="mt-1 font-medium">
-                      {animal.current_weight != null
-                        ? `${animal.current_weight} кг`
-                        : "—"}
-                    </p>
-                  </div>
+                <div className="rounded-xl bg-[#f8faf7] p-3">
+                  <p className="text-[#6b7280]">Привес</p>
+                  <p className="mt-1 font-medium text-[#2f6a4f]">
+                    {gain != null ? `+${gain} кг` : "—"}
+                  </p>
                 </div>
-              </button>
+                <div className="rounded-xl bg-[#f8faf7] p-3">
+                  <p className="text-[#6b7280]">Стартовый вес</p>
+                  <p className="mt-1 font-medium">
+                    {animal.start_weight != null ? `${animal.start_weight} кг` : "—"}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-[#f8faf7] p-3">
+                  <p className="text-[#6b7280]">Текущий вес</p>
+                  <p className="mt-1 font-medium">
+                    {animal.current_weight != null ? `${animal.current_weight} кг` : "—"}
+                  </p>
+                </div>
+              </div>
 
               <div className="mt-3 flex gap-2">
                 <Link
@@ -120,6 +156,15 @@ export default function LivestockTable({ animals }: Props) {
         <table className="min-w-full text-left">
           <thead className="bg-[#f8faf7] text-sm text-[#6b7280]">
             <tr>
+              <th className="w-px px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                  onChange={toggleAll}
+                  className="h-4 w-4 cursor-pointer rounded accent-[#1f4d3a]"
+                />
+              </th>
               <th className="px-4 py-3">Код</th>
               <th className="px-4 py-3">Партия</th>
               <th className="px-4 py-3">Возраст</th>
@@ -136,27 +181,35 @@ export default function LivestockTable({ animals }: Props) {
                 animal.start_weight != null && animal.current_weight != null
                   ? Number(animal.current_weight) - Number(animal.start_weight)
                   : null;
+              const isChecked = selected.has(animal.id);
 
               return (
                 <tr
                   key={animal.id}
                   onClick={() => router.push(`/livestock/${animal.id}`)}
-                  className="cursor-pointer border-t border-[#ebf0e6] bg-white transition hover:bg-[#fbfcfa]"
+                  className={`cursor-pointer border-t border-[#ebf0e6] transition hover:bg-[#fbfcfa] ${isChecked ? "bg-[#f0fdf4]" : "bg-white"}`}
                 >
+                  <td
+                    className="w-px px-4 py-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleOne(animal.id)}
+                      className="h-4 w-4 cursor-pointer rounded accent-[#1f4d3a]"
+                    />
+                  </td>
                   <td className="px-4 py-4 font-medium text-[#1f4d3a]">
                     {animal.animal_code || `ID-${animal.id}`}
                   </td>
                   <td className="px-4 py-4">{animal.batch || "Не указана"}</td>
                   <td className="px-4 py-4">{animal.age || "—"}</td>
                   <td className="px-4 py-4">
-                    {animal.start_weight != null
-                      ? `${animal.start_weight} кг`
-                      : "—"}
+                    {animal.start_weight != null ? `${animal.start_weight} кг` : "—"}
                   </td>
                   <td className="px-4 py-4">
-                    {animal.current_weight != null
-                      ? `${animal.current_weight} кг`
-                      : "—"}
+                    {animal.current_weight != null ? `${animal.current_weight} кг` : "—"}
                   </td>
                   <td className="px-4 py-4 font-medium text-[#2f6a4f]">
                     {gain != null ? `+${gain} кг` : "—"}
@@ -189,6 +242,40 @@ export default function LivestockTable({ animals }: Props) {
           </tbody>
         </table>
       </div>
+
+      {/* BULK ACTION BAR */}
+      {selected.size > 0 && (
+        <div className="sticky bottom-4 z-10 mt-4 flex flex-col gap-3 rounded-2xl border border-[#1f4d3a] bg-white px-4 py-3 shadow-lg ring-1 ring-[#1f4d3a]/10 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium text-[#1f4d3a]">
+            Выбрано: {selected.size} {selected.size === 1 ? "животное" : selected.size < 5 ? "животных" : "животных"}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-[#6b7280]">Сменить статус на</span>
+            <select
+              value={bulkStatus}
+              onChange={(e) => setBulkStatus(e.target.value)}
+              className="rounded-xl border border-[#d9e2d2] bg-white px-3 py-2 text-sm outline-none focus:border-[#1f4d3a]"
+            >
+              {LIVESTOCK_STATUSES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            <button
+              onClick={applyBulkStatus}
+              disabled={applying}
+              className="rounded-xl bg-[#1f4d3a] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+            >
+              {applying ? "Применяется..." : "Применить"}
+            </button>
+            <button
+              onClick={() => setSelected(new Set())}
+              className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#6b7280] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
