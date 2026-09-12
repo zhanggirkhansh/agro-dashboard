@@ -7,6 +7,7 @@ import WeightGainChart from "@/components/weight-gain-chart";
 import ExpensesChart from "@/components/expenses-chart";
 import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
+import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
 
 export default async function Home() {
@@ -21,6 +22,7 @@ export default async function Home() {
     { data: recentSales },
     { data: recentWeighings },
     { data: recentFeed },
+    { data: vaccineAlerts },
   ] = await Promise.all([
     supabase.from("livestock").select("id, status").limit(2000),
     supabase.from("batches").select("id, status").limit(500),
@@ -31,6 +33,13 @@ export default async function Home() {
     supabase.from("sales").select("id, total_amount, sale_date").order("sale_date", { ascending: false }).limit(3),
     supabase.from("weighings").select("id, weight, weighing_date").order("weighing_date", { ascending: false }).limit(3),
     supabase.from("feed").select("id, feed_name, quantity, feed_date").order("feed_date", { ascending: false }).limit(3),
+    supabase
+      .from("vaccines")
+      .select("id, vaccine_name, next_vaccination_date, livestock(animal_code)")
+      .not("next_vaccination_date", "is", null)
+      .lte("next_vaccination_date", new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0])
+      .order("next_vaccination_date", { ascending: true })
+      .limit(8),
   ]);
 
   const safeLivestock = livestock ?? [];
@@ -255,18 +264,59 @@ export default async function Home() {
           </SectionCard>
         </div>
 
-        <SectionCard eyebrow="Сигналы" title="Ключевые показатели">
-          <div className="space-y-4">
-            {signals.map((signal) => (
-              <div key={signal.title} className="rounded-2xl bg-[#f8faf7] p-4">
-                <p className="font-medium">{signal.title}</p>
-                <p className="mt-1 text-sm text-[#6b7280]">
-                  {signal.description}
-                </p>
+        <div className="space-y-5">
+          <SectionCard eyebrow="Сигналы" title="Ключевые показатели">
+            <div className="space-y-4">
+              {signals.map((signal) => (
+                <div key={signal.title} className="rounded-2xl bg-[#f8faf7] p-4">
+                  <p className="font-medium">{signal.title}</p>
+                  <p className="mt-1 text-sm text-[#6b7280]">
+                    {signal.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard eyebrow="Ветеринария" title="Вакцинации" actionLabel="Все" actionHref="/vaccines">
+            {!vaccineAlerts || vaccineAlerts.length === 0 ? (
+              <div className="rounded-2xl bg-[#f0fdf4] px-4 py-4 text-sm text-[#2f6a4f]">
+                Просроченных и предстоящих вакцинаций нет.
               </div>
-            ))}
-          </div>
-        </SectionCard>
+            ) : (
+              <div className="space-y-2">
+                {vaccineAlerts.map((v) => {
+                  const vStatus = getVaccineStatus(v.next_vaccination_date);
+                  const isOverdue = vStatus === VACCINE_STATUS.OVERDUE;
+                  const animalCode = Array.isArray(v.livestock)
+                    ? v.livestock[0]?.animal_code
+                    : (v.livestock as { animal_code: string } | null)?.animal_code;
+                  const daysLeft = Math.ceil(
+                    (new Date(v.next_vaccination_date!).getTime() - Date.now()) / 86400000
+                  );
+                  return (
+                    <div
+                      key={v.id}
+                      className={`rounded-2xl p-3 ${isOverdue ? "bg-[#fef2f2]" : "bg-[#fffbf0]"}`}
+                    >
+                      <p className={`text-sm font-medium ${isOverdue ? "text-[#b91c1c]" : "text-[#92400e]"}`}>
+                        {animalCode || "Животное не указано"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[#6b7280]">
+                        {v.vaccine_name} ·{" "}
+                        {isOverdue
+                          ? `просрочено ${Math.abs(daysLeft)} дн. назад`
+                          : daysLeft === 0
+                            ? "сегодня"
+                            : `через ${daysLeft} дн.`}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </SectionCard>
+        </div>
       </div>
     </section>
   );
