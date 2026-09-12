@@ -26,7 +26,7 @@ export default function NewVaccinePage() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    target: (presetBatchId ? "batch" : "animal") as "animal" | "batch",
+    target: (presetBatchId ? "batch" : "animal") as "animal" | "batch" | "all",
     animal_id: presetAnimalId,
     batch_id: presetBatchId,
     vaccine_name: "",
@@ -82,7 +82,43 @@ export default function NewVaccinePage() {
       comment: form.comment || null,
     };
 
-    if (form.target === "batch" && batchId) {
+    if (form.target === "all") {
+      const { data: allAnimals, error: allErr } = await supabase
+        .from("livestock")
+        .select("id, batch_id");
+
+      if (allErr) {
+        setError("Не удалось получить список животных.");
+        setLoading(false);
+        return;
+      }
+
+      const records = (allAnimals ?? []).map((a) => ({
+        ...vaccineBase,
+        animal_id: a.id,
+        batch_id: a.batch_id ?? null,
+      }));
+
+      if (records.length === 0) {
+        setError("Нет животных для вакцинации.");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.from("vaccines").insert(records);
+
+      if (error) {
+        setError("Не удалось сохранить записи.");
+        setLoading(false);
+        return;
+      }
+
+      showToast(
+        "Массовая вакцинация записана",
+        `${vaccineName} — ${records.length} животных`,
+        "success"
+      );
+    } else if (form.target === "batch" && batchId) {
       // Получаем всех животных в партии
       const { data: batchAnimals, error: animalsError } = await supabase
         .from("livestock")
@@ -151,8 +187,8 @@ export default function NewVaccinePage() {
               {/* Животное или партия */}
               <div>
                 <label className="mb-2 block text-sm font-medium">Кого вакцинировали</label>
-                <div className="mb-3 flex gap-3">
-                  {(["animal", "batch"] as const).map((t) => (
+                <div className="mb-3 flex flex-wrap gap-3">
+                  {(["animal", "batch", "all"] as const).map((t) => (
                     <button
                       key={t}
                       type="button"
@@ -163,7 +199,7 @@ export default function NewVaccinePage() {
                           : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf]"
                       }`}
                     >
-                      {t === "animal" ? "Конкретное животное" : "Вся партия"}
+                      {t === "animal" ? "Конкретное животное" : t === "batch" ? "Вся партия" : "Все животные"}
                     </button>
                   ))}
                 </div>
@@ -183,7 +219,7 @@ export default function NewVaccinePage() {
                       </option>
                     ))}
                   </select>
-                ) : (
+                ) : form.target === "batch" ? (
                   <select
                     name="batch_id"
                     value={form.batch_id}
@@ -196,6 +232,10 @@ export default function NewVaccinePage() {
                       <option key={b.id} value={b.id}>{b.batch_name}</option>
                     ))}
                   </select>
+                ) : (
+                  <div className="rounded-2xl border border-[#d9e2d2] bg-[#f8faf7] px-4 py-3 text-sm text-[#2f6a4f]">
+                    Будет создана запись для каждого животного в хозяйстве ({animals.length} гол.)
+                  </div>
                 )}
               </div>
 
@@ -334,9 +374,9 @@ export default function NewVaccinePage() {
         <SectionCard title="Подсказки" eyebrow="Что важно">
           <div className="space-y-4">
             <div className="rounded-2xl bg-[#f8faf7] p-4">
-              <p className="font-medium">Партия или животное</p>
+              <p className="font-medium">Выбор охвата</p>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Если вакцинировали всю партию — выбери «Вся партия». Для одного животного — «Конкретное животное».
+                «Конкретное животное» — одна запись. «Вся партия» — запись для каждого животного в партии. «Все животные» — массовая вакцинация всего поголовья.
               </p>
             </div>
             <div className="rounded-2xl bg-[#f8faf7] p-4">
