@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 type Props = {
@@ -20,6 +20,12 @@ export default function LivestockFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [searchValue, setSearchValue] = useState(search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
 
   const update = useCallback(
     (key: string, value: string) => {
@@ -35,7 +41,15 @@ export default function LivestockFilters({
     [router, searchParams, pathname]
   );
 
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setSearchValue(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => update("search", val), 400);
+  }
+
   function reset() {
+    setSearchValue("");
     router.push(pathname);
   }
 
@@ -44,14 +58,14 @@ export default function LivestockFilters({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <input
           type="text"
-          defaultValue={search}
-          onChange={(e) => update("search", e.target.value)}
+          value={searchValue}
+          onChange={handleSearchChange}
           placeholder="Поиск по коду или ID..."
           className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
         />
 
         <select
-          defaultValue={status}
+          value={status}
           onChange={(e) => update("status", e.target.value)}
           className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
         >
@@ -62,7 +76,7 @@ export default function LivestockFilters({
         </select>
 
         <select
-          defaultValue={batch}
+          value={batch}
           onChange={(e) => update("batch", e.target.value)}
           className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
         >

@@ -7,6 +7,7 @@ import Pagination from "@/components/pagination";
 import ExportVaccinesButton from "@/components/export-vaccines-button";
 import ExportVaccinationPDFButton from "@/components/export-vaccination-pdf-button";
 import DeleteButton from "@/components/delete-button";
+import VaccinesSearch from "@/components/vaccines-search";
 import { createClient } from "@/lib/supabase-server";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
@@ -20,12 +21,12 @@ const statusStyles: Record<string, string> = {
 };
 
 type Props = {
-  searchParams: Promise<{ status?: string; vaccine?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; vaccine?: string; search?: string; page?: string }>;
 };
 
 export default async function VaccinesPage({ searchParams }: Props) {
   const supabase = await createClient();
-  const { status, vaccine, page: pageParam } = await searchParams;
+  const { status, vaccine, search, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -53,6 +54,16 @@ export default async function VaccinesPage({ searchParams }: Props) {
     .order("next_vaccination_date", { ascending: true })
     .limit(10);
 
+  // Если ищем по коду животного — получаем совпадающие ID
+  let animalIdFilter: number[] | null = null;
+  if (search) {
+    const { data: matchedAnimals } = await supabase
+      .from("livestock")
+      .select("id")
+      .ilike("animal_code", `%${search}%`);
+    animalIdFilter = (matchedAnimals ?? []).map((a) => a.id);
+  }
+
   // Paginated list
   let query = supabase
     .from("vaccines")
@@ -64,6 +75,13 @@ export default async function VaccinesPage({ searchParams }: Props) {
     .range(from, to);
 
   if (vaccine) query = query.eq("vaccine_name", vaccine);
+  if (animalIdFilter !== null) {
+    if (animalIdFilter.length === 0) {
+      query = query.eq("animal_id", -1); // гарантированно нет результатов
+    } else {
+      query = query.in("animal_id", animalIdFilter);
+    }
+  }
 
   const { data: vaccines, count, error } = await query;
 
@@ -116,6 +134,8 @@ export default async function VaccinesPage({ searchParams }: Props) {
               </div>
             ) : (
               <div className="space-y-4">
+                <VaccinesSearch search={search ?? ""} />
+
                 {/* Фильтры */}
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -123,46 +143,50 @@ export default async function VaccinesPage({ searchParams }: Props) {
                     { label: "✅ Выполнено", s: VACCINE_STATUS.DONE },
                     { label: "⚠️ Скоро", s: VACCINE_STATUS.UPCOMING },
                     { label: "🔴 Просрочено", s: VACCINE_STATUS.OVERDUE },
-                  ].map(({ label, s }) => (
-                    <Link
-                      key={s || "all"}
-                      href={`/vaccines${s ? `?status=${encodeURIComponent(s)}` : ""}${vaccine ? `${s ? "&" : "?"}vaccine=${encodeURIComponent(vaccine)}` : ""}`}
-                      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                        (status ?? "") === s
-                          ? "bg-[#1f4d3a] text-white"
-                          : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-                      }`}
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  ].map(({ label, s }) => {
+                    const p = new URLSearchParams();
+                    if (s) p.set("status", s);
+                    if (vaccine) p.set("vaccine", vaccine);
+                    if (search) p.set("search", search);
+                    const qs = p.toString();
+                    return (
+                      <Link
+                        key={s || "all"}
+                        href={`/vaccines${qs ? `?${qs}` : ""}`}
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                          (status ?? "") === s
+                            ? "bg-[#1f4d3a] text-white"
+                            : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {/* Фильтр по вакцине */}
                 <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/vaccines${status ? `?status=${encodeURIComponent(status)}` : ""}`}
-                    className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                      !vaccine
-                        ? "bg-[#1f4d3a] text-white"
-                        : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-                    }`}
-                  >
-                    Все вакцины
-                  </Link>
-                  {vaccineNames.map((name) => (
-                    <Link
-                      key={name}
-                      href={`/vaccines?vaccine=${encodeURIComponent(name)}${status ? `&status=${encodeURIComponent(status)}` : ""}`}
-                      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                        vaccine === name
-                          ? "bg-[#1f4d3a] text-white"
-                          : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
-                      }`}
-                    >
-                      {name}
-                    </Link>
-                  ))}
+                  {[{ label: "Все вакцины", name: "" }, ...vaccineNames.map((n) => ({ label: n, name: n }))].map(({ label, name }) => {
+                    const p = new URLSearchParams();
+                    if (status) p.set("status", status);
+                    if (name) p.set("vaccine", name);
+                    if (search) p.set("search", search);
+                    const qs = p.toString();
+                    return (
+                      <Link
+                        key={name || "all-vaccines"}
+                        href={`/vaccines${qs ? `?${qs}` : ""}`}
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                          (vaccine ?? "") === name
+                            ? "bg-[#1f4d3a] text-white"
+                            : "bg-white text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 <div className="text-sm text-[#6b7280]">
