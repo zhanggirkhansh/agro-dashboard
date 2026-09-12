@@ -148,6 +148,12 @@ export default async function AnimalPage({ params }: PageProps) {
             + Взвесить
           </Link>
           <Link
+            href={`/vaccines/new?animal_id=${animal.id}`}
+            className="inline-flex rounded-2xl bg-[#2f6a4f] px-5 py-3 font-medium text-white shadow-sm hover:opacity-90"
+          >
+            + Вакцинировать
+          </Link>
+          <Link
             href={`/livestock/${animal.id}/edit`}
             className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"
           >
