@@ -6,6 +6,7 @@ import ProfitChart from "@/components/profit-chart";
 import RevenueExpenseChart from "@/components/revenue-expense-chart";
 import ExportAnalyticsButton from "@/components/export-analytics-button";
 import ExportFinancialPDFButton from "@/components/export-financial-pdf-button";
+import BatchROITable from "@/components/batch-roi-table";
 import { createClient } from "@/lib/supabase-server";
 
 export default async function AnalyticsPage() {
@@ -255,6 +256,15 @@ export default async function AnalyticsPage() {
               ))}
             </div>
           )}
+        </SectionCard>
+      </div>
+
+      <div className="mt-6">
+        <SectionCard title="Сравнительная таблица ROI" eyebrow="Рентабельность партий">
+          <p className="mb-4 text-sm text-[#6b7280]">
+            ROI = прибыль ÷ расходы × 100%. Нажмите на заголовок столбца для сортировки.
+          </p>
+          <BatchROITable data={analytics} />
         </SectionCard>
       </div>
     </section>
