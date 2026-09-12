@@ -105,6 +105,7 @@ html.dark {
 
 .dark .content-area .bg-\[\#fffbf0\] { background-color: #231d0b; }
 .dark .content-area .bg-\[\#fef2f2\] { background-color: #220e0e; }
+.dark .content-area .bg-\[\#f0fdf4\] { background-color: #0d2318; }
 .dark .content-area .bg-\[\#e6ebdf\] { background-color: #1e3326; }
 
 .dark .content-area .bg-\[\#1f4d3a\] { background-color: #265c46; }
@@ -184,6 +185,7 @@ html.dark {
 
   html:not([data-theme="light"]) .content-area .bg-\[\#fffbf0\] { background-color: #231d0b; }
   html:not([data-theme="light"]) .content-area .bg-\[\#fef2f2\] { background-color: #220e0e; }
+  html:not([data-theme="light"]) .content-area .bg-\[\#f0fdf4\] { background-color: #0d2318; }
   html:not([data-theme="light"]) .content-area .bg-\[\#e6ebdf\] { background-color: #1e3326; }
   html:not([data-theme="light"]) .content-area .bg-\[\#1f4d3a\] { background-color: #265c46; }
 
