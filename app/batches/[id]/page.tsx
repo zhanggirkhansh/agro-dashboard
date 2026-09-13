@@ -5,6 +5,7 @@ import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import DeleteButton from "@/components/delete-button";
+import BatchProfitForecast from "@/components/batch-profit-forecast";
 import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
@@ -82,6 +83,11 @@ export default async function BatchDetailsPage({ params }: Props) {
   const totalRevenue = safeSales.reduce((s, sale) => s + Number(sale.total_amount || 0), 0);
   const profit = totalRevenue - totalExpenses;
   const roi = totalExpenses > 0 ? (profit / totalExpenses) * 100 : null;
+
+  const totalCurrentWeight = safeAnimals.reduce(
+    (sum, a) => sum + Number(a.current_weight || 0),
+    0
+  );
 
   const expensesByCategory = safeExpenses.reduce<Record<string, number>>((acc, e) => {
     const cat = e.category || "Прочее";
@@ -188,6 +194,15 @@ export default async function BatchDetailsPage({ params }: Props) {
                 Нет привязанных расходов и продаж. Добавьте расходы с указанием партии.
               </p>
             )}
+          </SectionCard>
+
+          <SectionCard title="Прогноз прибыли" eyebrow="Калькулятор продажи">
+            <BatchProfitForecast
+              totalCurrentWeight={totalCurrentWeight}
+              totalExpenses={totalExpenses}
+              totalRevenue={totalRevenue}
+              animalsCount={safeAnimals.length}
+            />
           </SectionCard>
 
           <SectionCard title="Информация о партии" eyebrow="Основные данные">
