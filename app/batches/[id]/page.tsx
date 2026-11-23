@@ -106,7 +106,13 @@ export default async function BatchDetailsPage({ params }: Props) {
           </h2>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href={`/weighings/new?batch_id=${numericId}`}
+            className="inline-flex rounded-2xl bg-[#1f4d3a] px-5 py-3 font-medium text-white hover:opacity-90"
+          >
+            Взвесить партию
+          </Link>
           <Link
             href={`/batches/${numericId}/edit`}
             className="inline-flex rounded-2xl bg-white px-5 py-3 font-medium text-[#1f4d3a] ring-1 ring-[#e6ebdf] hover:bg-[#f6f9f4]"

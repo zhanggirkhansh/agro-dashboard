@@ -411,6 +411,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_batch_weighings: {
+        Args: {
+          p_batch_id: number
+          p_weighing_date: string
+          p_weights: Json
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
