@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
+import { mutateWeighing } from "@/lib/weighings";
 
 type Animal = {
   id: number;
@@ -69,32 +70,18 @@ export default function NewWeighingPage() {
     const animalId = Number(form.animal_id);
     const newWeight = Number(form.weight);
 
-    const { error: insertError } = await supabase.from("weighings").insert([
-      {
-        animal_id: animalId,
+    const failure = await mutateWeighing({
+      operation: "insert",
+      animalId,
+      measurement: {
         weighing_date: form.weighing_date,
         weight: newWeight,
         comment: form.comment || null,
       },
-    ]);
+    });
 
-    if (insertError) {
-      console.error(insertError);
-      setError("Не удалось сохранить взвешивание.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: updateError } = await supabase
-      .from("livestock")
-      .update({ current_weight: newWeight })
-      .eq("id", animalId);
-
-    if (updateError) {
-      console.error(updateError);
-      setError(
-        "Взвешивание сохранено, но не удалось обновить текущий вес животного."
-      );
+    if (failure) {
+      setError(failure);
       setLoading(false);
       return;
     }

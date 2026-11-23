@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { mutateWeighing } from "@/lib/weighings";
 
 type Props = {
   table: "livestock" | "expenses" | "feed" | "weighings" | "vaccines" | "sales" | "batches";
@@ -26,10 +27,16 @@ export default function DeleteButton({
     if (!confirm(confirmMessage)) return;
     setDeleting(true);
 
-    const { error } = await supabase.from(table).delete().eq("id", id);
+    let failure: string | null = null;
+    if (table === "weighings") {
+      failure = await mutateWeighing({ operation: "delete", id });
+    } else {
+      const { error } = await supabase.from(table).delete().eq("id", id);
+      if (error) failure = "Не удалось удалить запись. Попробуйте ещё раз.";
+    }
 
-    if (error) {
-      alert("Не удалось удалить запись. Попробуйте ещё раз.");
+    if (failure) {
+      alert(failure);
       setDeleting(false);
       return;
     }

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
+import { mutateWeighing } from "@/lib/weighings";
 import { useToast } from "@/components/toast-provider";
 
 const today = new Date().toISOString().split("T")[0];
@@ -16,7 +17,6 @@ export default function EditWeighingPage() {
   const { showToast } = useToast();
 
   const [animalCode, setAnimalCode] = useState("");
-  const [animalId, setAnimalId] = useState<number | null>(null);
   const [form, setForm] = useState({
     weighing_date: "",
     weight: "",
@@ -47,7 +47,6 @@ export default function EditWeighingPage() {
         : (data.livestock as { animal_code: string } | null)?.animal_code;
 
       setAnimalCode(code ?? "");
-      setAnimalId(data.animal_id);
       setForm({
         weighing_date: data.weighing_date ?? "",
         weight: data.weight != null ? String(data.weight) : "",
@@ -69,34 +68,23 @@ export default function EditWeighingPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const w = Number(form.weight);
-    if (w <= 0) {
-      setError("Вес должен быть больше нуля.");
-      return;
-    }
     setLoading(true);
     setError("");
 
-    const { error } = await supabase
-      .from("weighings")
-      .update({
+    const failure = await mutateWeighing({
+      operation: "update",
+      id,
+      measurement: {
         weighing_date: form.weighing_date,
         weight: w,
         comment: form.comment || null,
-      })
-      .eq("id", id);
+      },
+    });
 
-    if (error) {
-      setError("Не удалось сохранить изменения.");
+    if (failure) {
+      setError(failure);
       setLoading(false);
       return;
-    }
-
-    // Обновляем current_weight у животного
-    if (animalId) {
-      await supabase
-        .from("livestock")
-        .update({ current_weight: w })
-        .eq("id", animalId);
     }
 
     showToast("Взвешивание обновлено", animalCode, "success");
@@ -108,10 +96,10 @@ export default function EditWeighingPage() {
     if (!confirm("Удалить эту запись взвешивания? Действие нельзя отменить.")) return;
     setDeleting(true);
 
-    const { error } = await supabase.from("weighings").delete().eq("id", id);
+    const failure = await mutateWeighing({ operation: "delete", id });
 
-    if (error) {
-      setError("Не удалось удалить запись.");
+    if (failure) {
+      setError(failure);
       setDeleting(false);
       return;
     }

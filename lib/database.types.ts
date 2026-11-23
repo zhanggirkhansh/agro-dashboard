@@ -392,7 +392,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      mutate_weighing: {
+        Args: {
+          p_operation: string
+          p_id?: number
+          p_animal_id?: number
+          p_weighing_date?: string
+          p_weight?: number
+          p_comment?: string | null
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
