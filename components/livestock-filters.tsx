@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import EarTagCamera from "@/components/ear-tag-camera";
 import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 type Props = {
@@ -27,6 +28,10 @@ export default function LivestockFilters({
     setSearchValue(search);
   }, [search]);
 
+  useEffect(() => () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }, []);
+
   const update = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -35,6 +40,7 @@ export default function LivestockFilters({
       } else {
         params.delete(key);
       }
+      if (key === "search") params.delete("tag");
       params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
@@ -49,8 +55,14 @@ export default function LivestockFilters({
   }
 
   function reset() {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setSearchValue("");
     router.push(pathname);
+  }
+
+  function openScannedTag(number: string) {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    router.push(pathname + "?" + new URLSearchParams({ tag: number }).toString());
   }
 
   return (
@@ -58,6 +70,7 @@ export default function LivestockFilters({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <input
           type="text"
+          aria-label="Поиск по коду или ID"
           value={searchValue}
           onChange={handleSearchChange}
           placeholder="Поиск по коду или ID..."
@@ -89,7 +102,12 @@ export default function LivestockFilters({
         </select>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <EarTagCamera
+          searchContext={JSON.stringify([searchValue, status, batch])}
+          onNumber={openScannedTag}
+          numberMessage={(number) => "Распознан номер " + number + "."}
+        />
         <button
           type="button"
           onClick={reset}

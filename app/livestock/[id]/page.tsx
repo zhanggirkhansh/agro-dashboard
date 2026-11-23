@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import PageHeader from "@/components/page-header";
 import ExportAnimalPDFButton from "@/components/export-animal-pdf-button";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
@@ -45,7 +44,8 @@ export default async function AnimalPage({ params }: PageProps) {
       .from("weighings")
       .select("id, weight, weighing_date, comment")
       .eq("animal_id", animalId)
-      .order("weighing_date", { ascending: true }),
+      .order("weighing_date", { ascending: true })
+      .order("id"),
 
     supabase
       .from("livestock_history")
@@ -120,14 +120,13 @@ export default async function AnimalPage({ params }: PageProps) {
     // Два и более взвешивания: первое vs последнее
     const first = safeWeighings[0];
     const last = safeWeighings[safeWeighings.length - 1];
-    const days = Math.max(
-      1,
-      Math.round(
-        (new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) /
-          86400000
-      )
+    const days = Math.round(
+      (new Date(last.weighing_date).getTime() - new Date(first.weighing_date).getTime()) /
+        86400000
     );
-    dailyGainG = Math.round(((Number(last.weight) - Number(first.weight)) / days) * 1000);
+    if (days > 0) {
+      dailyGainG = Math.round(((Number(last.weight) - Number(first.weight)) / days) * 1000);
+    }
   }
 
   return (
@@ -163,15 +162,19 @@ export default async function AnimalPage({ params }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Текущий вес" value={`${currentWeight} кг`} />
+        <StatCard title="Текущий вес" value={animal.current_weight == null ? "—" : `${currentWeight} кг`} />
         <StatCard title="Общий привес" value={`${gain >= 0 ? "+" : ""}${gain} кг`} />
         <StatCard
-          title="Суточный привес"
+          title="Среднесуточный привес"
           value={dailyGainG !== null ? `${dailyGainG > 0 ? "+" : ""}${dailyGainG} г/день` : "—"}
-          change={dailyGainG === null ? "Нужно ≥ 2 взвешивания" : undefined}
+          change={dailyGainG === null ? "Нужны взвешивания в разные дни" : undefined}
         />
         <StatCard title="Статус" value={animal.status || LIVESTOCK_STATUS.ACTIVE} />
       </div>
+
+      <a href="#vaccination-history" className="mt-4 inline-block text-sm font-medium text-[#1f4d3a] underline underline-offset-4">
+        История вакцинаций
+      </a>
 
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
@@ -316,7 +319,7 @@ export default async function AnimalPage({ params }: PageProps) {
       )}
 
       {/* Вакцинации */}
-      <div className="mt-6">
+      <div id="vaccination-history" className="mt-6 scroll-mt-20">
         <SectionCard
           title="История вакцинаций"
           eyebrow="Ветеринарный учёт"

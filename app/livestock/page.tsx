@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import LivestockTable from "@/components/livestock-table";
@@ -16,6 +17,7 @@ const PAGE_SIZE = 20;
 type Props = {
   searchParams: Promise<{
     search?: string;
+    tag?: string;
     status?: string;
     batch?: string;
     page?: string;
@@ -24,10 +26,25 @@ type Props = {
 
 export default async function LivestockPage({ searchParams }: Props) {
   const supabase = await createClient();
-  const { search, status, batch, page: pageParam } = await searchParams;
+  const { search, tag, status, batch, page: pageParam } = await searchParams;
+  const scannedTag = typeof tag === "string" && /^[0-9]{3,}$/.test(tag) ? tag : undefined;
+  const searchTerm = scannedTag ?? search;
   const page = Math.max(1, Number(pageParam ?? 1));
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+
+  let matchExactTag = false;
+  let tagLookupFailed = false;
+  if (scannedTag) {
+    const { data: matches, error } = await supabase
+      .from("livestock")
+      .select("id")
+      .eq("animal_code", scannedTag)
+      .limit(2);
+    if (matches?.length === 1) redirect(`/livestock/${matches[0].id}`);
+    matchExactTag = matches?.length === 2;
+    tagLookupFailed = !!error;
+  }
 
   // Stats query (all animals, no pagination)
   const { data: allAnimals } = await supabase
@@ -57,7 +74,8 @@ export default async function LivestockPage({ searchParams }: Props) {
     .order("created_at", { ascending: false })
     .range(from, to);
 
-  if (search) query = query.ilike("animal_code", `%${search}%`);
+  if (scannedTag && matchExactTag) query = query.eq("animal_code", scannedTag);
+  else if (searchTerm) query = query.ilike("animal_code", `%${searchTerm}%`);
   if (status) query = query.eq("status", status);
   if (batch) query = query.eq("batch", batch);
 
@@ -110,10 +128,20 @@ export default async function LivestockPage({ searchParams }: Props) {
               <div className="space-y-4">
                 <LivestockFilters
                   batches={batches ?? []}
-                  search={search ?? ""}
+                  search={searchTerm ?? ""}
                   status={status ?? ""}
                   batch={batch ?? ""}
                 />
+
+                {scannedTag && (
+                  <p role="status" className="text-sm text-[#6b7280]">
+                    {tagLookupFailed
+                      ? "Не удалось проверить точное совпадение. Проверьте результат поиска."
+                      : totalCount > 0
+                        ? `Проверьте номер ${scannedTag} и откройте нужную карточку.`
+                        : `Бирка ${scannedTag} не найдена. Проверьте номер в поле поиска.`}
+                  </p>
+                )}
 
                 <div className="text-sm text-[#6b7280]">
                   Найдено: {totalCount}

@@ -7,9 +7,10 @@ import { readEarTagNumbers } from "@/lib/ear-tag-ocr";
 type Props = {
   searchContext: string;
   onNumber: (number: string) => void;
+  numberMessage?: (number: string) => string;
 };
 
-export default function EarTagCamera({ searchContext, onNumber }: Props) {
+export default function EarTagCamera({ searchContext, onNumber, numberMessage }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const scan = useRef<AbortController | null>(null);
   const latestSearchContext = useRef(searchContext);
@@ -29,7 +30,7 @@ export default function EarTagCamera({ searchContext, onNumber }: Props) {
   function applyNumber(number: string) {
     onNumber(number);
     setCandidates([]);
-    setMessage("Проверьте номер " + number + " и выберите животное из результатов.");
+    setMessage(numberMessage?.(number) ?? "Проверьте номер " + number + " и выберите животное из результатов.");
   }
 
   async function handlePhoto(event: ChangeEvent<HTMLInputElement>) {

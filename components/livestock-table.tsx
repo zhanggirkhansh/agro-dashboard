@@ -201,7 +201,13 @@ export default function LivestockTable({ animals }: Props) {
                     />
                   </td>
                   <td className="px-4 py-4 font-medium text-[#1f4d3a]">
-                    {animal.animal_code || `ID-${animal.id}`}
+                    <Link
+                      href={`/livestock/${animal.id}`}
+                      onClick={(event) => event.stopPropagation()}
+                      className="hover:underline"
+                    >
+                      {animal.animal_code || `ID-${animal.id}`}
+                    </Link>
                   </td>
                   <td className="px-4 py-4">{animal.batch || "Не указана"}</td>
                   <td className="px-4 py-4">{animal.age || "—"}</td>
