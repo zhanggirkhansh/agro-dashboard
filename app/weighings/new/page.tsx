@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import EarTagCamera from "@/components/ear-tag-camera";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { LIVESTOCK_STATUS } from "@/constants/status";
@@ -161,6 +162,12 @@ export default function NewWeighingPage() {
     .filter((animal) => (batchWeights[animal.id] ?? "").trim() !== "")
     .map((animal) => ({ animal_id: animal.id, weight: Number(batchWeights[animal.id]) }));
 
+  function changeAnimalSearch(value: string) {
+    setAnimalSearch(value);
+    setAnimalChoice(null);
+    setError("");
+  }
+
   function chooseAnimal(animal: Animal) {
     setAnimalChoice(animal);
     setAnimalSearch("");
@@ -284,21 +291,24 @@ export default function NewWeighingPage() {
                     </select>
                   </div>
                 ) : (
-                  <label className="block text-sm font-medium">
-                    Поиск по коду или номеру бирки
+                  <div className="space-y-2">
+                    <label htmlFor="weighing-animal-search" className="block text-sm font-medium">
+                      Поиск по коду или номеру бирки
+                    </label>
                     <input
+                      id="weighing-animal-search"
                       type="search"
                       value={animalSearch}
                       placeholder="Например, 001"
-                      className={"mt-2 " + INPUT_CLASS}
+                      className={INPUT_CLASS}
                       onKeyDown={chooseSearchResult}
-                      onChange={(event) => {
-                        setAnimalSearch(event.target.value);
-                        setAnimalChoice(null);
-                        setError("");
-                      }}
+                      onChange={(event) => changeAnimalSearch(event.target.value)}
                     />
-                  </label>
+                    <EarTagCamera
+                      searchContext={JSON.stringify([animalSearch, selectedAnimal?.id])}
+                      onNumber={changeAnimalSearch}
+                    />
+                  </div>
                 )}
 
                 <label className="block text-sm font-medium">

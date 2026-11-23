@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/prepare-weighing-ocr.mjs",
     "dev": "next dev --webpack",
+    "prebuild": "node scripts/prepare-weighing-ocr.mjs",
     "build": "next build --webpack",
     "start": "next start"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.99.1",
+    "@tesseract.js-data/eng": "^1.0.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.577.0",
@@ -17,6 +20,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.8.1",
+    "tesseract.js": "^7.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
