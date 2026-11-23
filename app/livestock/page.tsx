@@ -10,6 +10,7 @@ import Pagination from "@/components/pagination";
 import ExportLivestockButton from "@/components/export-livestock-button";
 import ExportAllAnimalsPDFButton from "@/components/export-all-animals-pdf-button";
 import { createClient } from "@/lib/supabase-server";
+import { farmDate } from "@/lib/livestock-age";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 
 const PAGE_SIZE = 20;
@@ -68,7 +69,7 @@ export default async function LivestockPage({ searchParams }: Props) {
   // Filtered + paginated query
   let query = supabase
     .from("livestock")
-    .select("id, animal_code, batch, age, start_weight, current_weight, status", {
+    .select("id, animal_code, batch, age, created_at, start_weight, current_weight, status", {
       count: "exact",
     })
     .order("created_at", { ascending: false })
@@ -147,7 +148,7 @@ export default async function LivestockPage({ searchParams }: Props) {
                   Найдено: {totalCount}
                 </div>
 
-                <LivestockTable animals={safeAnimals} />
+                <LivestockTable animals={safeAnimals} asOfDate={farmDate()} />
 
                 <Pagination
                   page={page}

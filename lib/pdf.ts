@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { farmDate, formatLivestockAge } from "@/lib/livestock-age";
 
 // ── Утилиты ──────────────────────────────────────────────────────────────────
 
@@ -149,6 +150,7 @@ const CSS = `
 type AnimalCard = {
   animal_code: string | null;
   age: string | null;
+  created_at: string | null;
   status: string | null;
   batch: string | null;
   start_weight: number | null;
@@ -213,7 +215,7 @@ export async function exportAnimalCardPDF(
     <div class="subtitle">Партия: ${animal.batch ?? "—"} · Статус: ${animal.status ?? "—"}</div>
 
     <div class="info-grid">
-      <div class="info-box"><div class="label">Возраст</div><div class="value">${animal.age ?? "—"}</div></div>
+      <div class="info-box"><div class="label">Возраст</div><div class="value">${formatLivestockAge(animal.age, animal.created_at)}</div></div>
       <div class="info-box"><div class="label">Стартовый вес</div><div class="value">${animal.start_weight != null ? animal.start_weight + " кг" : "—"}</div></div>
       <div class="info-box"><div class="label">Текущий вес</div><div class="value">${animal.current_weight != null ? animal.current_weight + " кг" : "—"}</div></div>
       <div class="info-box"><div class="label">Общий привес</div><div class="value">${gain != null ? "+" + gain + " кг" : "—"}</div></div>
@@ -260,6 +262,7 @@ export async function exportAllAnimalsCardsPDF(
   weighingsByAnimal: Record<number, WeighingRecord[]>,
   vaccinesByAnimal: Record<number, AnimalVaccine[]>
 ) {
+  const asOfDate = farmDate();
   const animalSections = animals
     .map((animal, index) => {
       const weighings = weighingsByAnimal[animal.id] ?? [];
@@ -303,7 +306,7 @@ export async function exportAllAnimalsCardsPDF(
         <div class="content">
           <div class="subtitle">Партия: ${animal.batch ?? "—"} · Статус: ${animal.status ?? "—"}</div>
           <div class="info-grid">
-            <div class="info-box"><div class="label">Возраст</div><div class="value">${animal.age ?? "—"}</div></div>
+            <div class="info-box"><div class="label">Возраст</div><div class="value">${formatLivestockAge(animal.age, animal.created_at, asOfDate)}</div></div>
             <div class="info-box"><div class="label">Стартовый вес</div><div class="value">${animal.start_weight != null ? animal.start_weight + " кг" : "—"}</div></div>
             <div class="info-box"><div class="label">Текущий вес</div><div class="value">${animal.current_weight != null ? animal.current_weight + " кг" : "—"}</div></div>
             <div class="info-box"><div class="label">Общий привес</div><div class="value">${gain != null ? "+" + gain + " кг" : "—"}</div></div>

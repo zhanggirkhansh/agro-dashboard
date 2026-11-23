@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import LivestockAge from "@/components/livestock-age";
 import StatusBadge from "@/components/status-badge";
 import DeleteButton from "@/components/delete-button";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +14,7 @@ type Animal = {
   animal_code: string | null;
   batch: string | null;
   age: string | null;
+  created_at: string | null;
   start_weight: number | null;
   current_weight: number | null;
   status: string | null;
@@ -20,9 +22,10 @@ type Animal = {
 
 type Props = {
   animals: Animal[];
+  asOfDate: string;
 };
 
-export default function LivestockTable({ animals }: Props) {
+export default function LivestockTable({ animals, asOfDate }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [bulkStatus, setBulkStatus] = useState<string>(LIVESTOCK_STATUSES[0]);
@@ -110,7 +113,9 @@ export default function LivestockTable({ animals }: Props) {
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl bg-[#f8faf7] p-3">
                   <p className="text-[#6b7280]">Возраст</p>
-                  <p className="mt-1 font-medium">{animal.age || "—"}</p>
+                  <p className="mt-1 font-medium">
+                    <LivestockAge age={animal.age} registeredAt={animal.created_at} asOfDate={asOfDate} />
+                  </p>
                 </div>
                 <div className="rounded-xl bg-[#f8faf7] p-3">
                   <p className="text-[#6b7280]">Привес</p>
@@ -210,7 +215,9 @@ export default function LivestockTable({ animals }: Props) {
                     </Link>
                   </td>
                   <td className="px-4 py-4">{animal.batch || "Не указана"}</td>
-                  <td className="px-4 py-4">{animal.age || "—"}</td>
+                  <td className="px-4 py-4">
+                    <LivestockAge age={animal.age} registeredAt={animal.created_at} asOfDate={asOfDate} />
+                  </td>
                   <td className="px-4 py-4">
                     {animal.start_weight != null ? `${animal.start_weight} кг` : "—"}
                   </td>

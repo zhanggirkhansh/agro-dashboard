@@ -9,7 +9,7 @@ type Props = {
   animalCode: string | null;
 };
 
-export default function ExportAnimalPDFButton({ animalId, animalCode }: Props) {
+export default function ExportAnimalPDFButton({ animalId }: Props) {
   const [loading, setLoading] = useState(false);
 
   async function handleExport() {
@@ -18,7 +18,7 @@ export default function ExportAnimalPDFButton({ animalId, animalCode }: Props) {
     const [{ data: animal }, { data: weighings }] = await Promise.all([
       supabase
         .from("livestock")
-        .select("animal_code, age, status, batch, batch_id, start_weight, current_weight")
+        .select("animal_code, age, created_at, status, batch, batch_id, start_weight, current_weight")
         .eq("id", animalId)
         .single(),
       supabase

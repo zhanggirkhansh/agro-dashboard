@@ -18,7 +18,7 @@ export default function ExportAllAnimalsPDFButton() {
     ] = await Promise.all([
       supabase
         .from("livestock")
-        .select("id, animal_code, age, status, batch, batch_id, start_weight, current_weight")
+        .select("id, animal_code, age, created_at, status, batch, batch_id, start_weight, current_weight")
         .order("created_at", { ascending: false }),
       supabase
         .from("weighings")

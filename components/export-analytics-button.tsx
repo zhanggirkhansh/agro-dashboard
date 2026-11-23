@@ -28,7 +28,7 @@ export default function ExportAnalyticsButton({ analytics }: Props) {
     const [{ data: livestock }, { data: expensesData }] = await Promise.all([
       supabase
         .from("livestock")
-        .select("id, animal_code, batch, age, status, start_weight, current_weight")
+        .select("id, animal_code, batch, age, created_at, status, start_weight, current_weight")
         .order("batch", { ascending: true }),
       supabase
         .from("expenses")

@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { farmDate, formatLivestockAge } from "@/lib/livestock-age";
 
 function download(wb: XLSX.WorkBook, filename: string) {
   XLSX.writeFile(wb, filename);
@@ -15,16 +16,18 @@ type LivestockRow = {
   animal_code: string | null;
   batch: string | null;
   age: string | null;
+  created_at: string | null;
   status: string | null;
   start_weight: number | null;
   current_weight: number | null;
 };
 
 export function exportLivestock(animals: LivestockRow[]) {
+  const asOfDate = farmDate();
   const rows = animals.map((a) => ({
     "Код животного": a.animal_code ?? "—",
     "Партия": a.batch ?? "—",
-    "Возраст": a.age ?? "—",
+    "Возраст": formatLivestockAge(a.age, a.created_at, asOfDate),
     "Статус": a.status ?? "—",
     "Стартовый вес (кг)": a.start_weight ?? "",
     "Текущий вес (кг)": a.current_weight ?? "",
@@ -109,6 +112,7 @@ export function exportAnalyticsSummary(
   livestock: LivestockRow[],
   expenses: ExpenseRow[]
 ) {
+  const asOfDate = farmDate();
   const wb = XLSX.utils.book_new();
 
   // Лист 1 — Финансовая сводка по партиям
@@ -127,7 +131,7 @@ export function exportAnalyticsSummary(
   const livestockRows = livestock.map((a) => ({
     "Код животного": a.animal_code ?? "—",
     "Партия": a.batch ?? "—",
-    "Возраст": a.age ?? "—",
+    "Возраст": formatLivestockAge(a.age, a.created_at, asOfDate),
     "Статус": a.status ?? "—",
     "Стартовый вес (кг)": a.start_weight ?? "",
     "Текущий вес (кг)": a.current_weight ?? "",

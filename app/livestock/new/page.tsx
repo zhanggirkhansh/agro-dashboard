@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
+import { parseLivestockAge } from "@/lib/livestock-age";
 import { LIVESTOCK_STATUSES } from "@/constants/status";
 
 type Batch = {
@@ -62,6 +63,11 @@ export default function NewLivestockPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const age = form.age.trim();
+    if (age && !parseLivestockAge(age)) {
+      setError("Укажите возраст в месяцах или в формате «1 год 2 мес.».");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -74,7 +80,7 @@ export default function NewLivestockPage() {
         animal_code: form.animal_code,
         batch_id: form.batch_id ? Number(form.batch_id) : null,
         batch: selectedBatch?.batch_name || null,
-        age: form.age || null,
+        age: age || null,
         start_weight: form.start_weight ? Number(form.start_weight) : null,
         current_weight: form.current_weight ? Number(form.current_weight) : null,
         status: form.status || null,
@@ -141,15 +147,20 @@ export default function NewLivestockPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium">Возраст</label>
+                  <label htmlFor="registration-age" className="mb-2 block text-sm font-medium">Возраст при регистрации</label>
                   <input
+                    id="registration-age"
                     type="text"
                     name="age"
                     value={form.age}
                     onChange={handleChange}
                     placeholder="Например: 14 мес."
+                    aria-describedby="registration-age-help"
                     className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
                   />
+                  <p id="registration-age-help" className="mt-1 text-sm text-[#6b7280]">
+                    Введите число месяцев или возраст с единицами, например «1 год 2 мес.».
+                  </p>
                 </div>
 
                 <div>

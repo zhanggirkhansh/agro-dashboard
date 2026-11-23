@@ -12,7 +12,7 @@ export default function ExportLivestockButton() {
 
     const { data, error } = await supabase
       .from("livestock")
-      .select("id, animal_code, batch, age, status, start_weight, current_weight")
+      .select("id, animal_code, batch, age, created_at, status, start_weight, current_weight")
       .order("batch", { ascending: true });
 
     if (error || !data) {

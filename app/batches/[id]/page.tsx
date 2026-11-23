@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import LivestockAge from "@/components/livestock-age";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 import DeleteButton from "@/components/delete-button";
 import BatchProfitForecast from "@/components/batch-profit-forecast";
 import { createClient } from "@/lib/supabase-server";
+import { farmDate } from "@/lib/livestock-age";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 
@@ -56,6 +58,7 @@ export default async function BatchDetailsPage({ params }: Props) {
   }
 
   const safeAnimals = animals ?? [];
+  const asOfDate = farmDate();
 
   const avgCurrentWeight =
     safeAnimals.length > 0
@@ -291,7 +294,7 @@ export default async function BatchDetailsPage({ params }: Props) {
                               {animal.animal_code || "—"}
                             </p>
                             <p className="mt-1 text-sm text-[#6b7280]">
-                              Возраст: {animal.age || "—"}
+                              Возраст: <LivestockAge age={animal.age} registeredAt={animal.created_at} asOfDate={asOfDate} />
                             </p>
                           </div>
 
@@ -359,7 +362,9 @@ export default async function BatchDetailsPage({ params }: Props) {
                             <td className="px-4 py-4 font-medium">
                               {animal.animal_code}
                             </td>
-                            <td className="px-4 py-4">{animal.age || "—"}</td>
+                            <td className="px-4 py-4">
+                              <LivestockAge age={animal.age} registeredAt={animal.created_at} asOfDate={asOfDate} />
+                            </td>
                             <td className="px-4 py-4">
                               {animal.start_weight != null
                                 ? `${animal.start_weight} кг`

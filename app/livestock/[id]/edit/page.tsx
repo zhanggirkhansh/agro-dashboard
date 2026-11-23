@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import SectionCard from "@/components/section-card";
 import { supabase } from "@/lib/supabase";
+import { parseLivestockAge } from "@/lib/livestock-age";
 import { LIVESTOCK_STATUS, LIVESTOCK_STATUSES } from "@/constants/status";
 import { useToast } from "@/components/toast-provider";
 
@@ -20,6 +21,7 @@ export default function EditLivestockPage() {
   const { showToast } = useToast();
 
   const [batches, setBatches] = useState<Batch[]>([]);
+  const [initialAge, setInitialAge] = useState<string | null>(null);
   const [form, setForm] = useState({
     animal_code: "",
     batch_id: "",
@@ -52,6 +54,7 @@ export default function EditLivestockPage() {
       }
 
       setBatches(batchesData ?? []);
+      setInitialAge(animal.age);
       setForm({
         animal_code: animal.animal_code ?? "",
         batch_id: animal.batch_id != null ? String(animal.batch_id) : "",
@@ -77,6 +80,12 @@ export default function EditLivestockPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const age = form.age.trim();
+    const ageChanged = age !== (initialAge ?? "").trim();
+    if (ageChanged && age && !parseLivestockAge(age)) {
+      setError("Укажите возраст в месяцах или в формате «1 год 2 мес.».");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -95,7 +104,7 @@ export default function EditLivestockPage() {
         animal_code: form.animal_code,
         batch_id: form.batch_id ? Number(form.batch_id) : null,
         batch: selectedBatch?.batch_name ?? null,
-        age: form.age || null,
+        ...(ageChanged ? { age: age || null } : {}),
         start_weight: form.start_weight ? Number(form.start_weight) : null,
         current_weight: form.current_weight ? Number(form.current_weight) : null,
         status: form.status || null,
@@ -221,15 +230,20 @@ export default function EditLivestockPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium">Возраст</label>
+                  <label htmlFor="registration-age" className="mb-2 block text-sm font-medium">Возраст при регистрации</label>
                   <input
+                    id="registration-age"
                     type="text"
                     name="age"
                     value={form.age}
                     onChange={handleChange}
                     placeholder="Например: 14 мес."
+                    aria-describedby="registration-age-help"
                     className="w-full rounded-2xl border border-[#d9e2d2] bg-white px-4 py-3 outline-none"
                   />
+                  <p id="registration-age-help" className="mt-1 text-sm text-[#6b7280]">
+                    Для исправления укажите возраст на день добавления животного в базу.
+                  </p>
                 </div>
 
                 <div>

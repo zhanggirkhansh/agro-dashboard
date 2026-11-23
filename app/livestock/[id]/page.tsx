@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import ExportAnimalPDFButton from "@/components/export-animal-pdf-button";
+import LivestockAge from "@/components/livestock-age";
 import SectionCard from "@/components/section-card";
 import StatCard from "@/components/stat-card";
 import WeightChart from "@/components/weight-chart";
@@ -9,6 +10,7 @@ import { createClient } from "@/lib/supabase-server";
 import { LIVESTOCK_STATUS } from "@/constants/status";
 import { getVaccineStatus, VACCINE_STATUS } from "@/constants/vaccines";
 import { formatDate } from "@/lib/format-date";
+import { farmDate } from "@/lib/livestock-age";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -203,7 +205,9 @@ export default async function AnimalPage({ params }: PageProps) {
 
             <div>
               <p className="text-[#6b7280]">Возраст</p>
-              <p className="font-medium">{animal.age || "—"}</p>
+              <p className="font-medium">
+                <LivestockAge age={animal.age} registeredAt={animal.created_at} asOfDate={farmDate()} />
+              </p>
             </div>
 
             <div>
