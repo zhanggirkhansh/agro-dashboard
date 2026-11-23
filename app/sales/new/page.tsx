@@ -26,7 +26,6 @@ export default function NewSalePage() {
     price_per_kg: "",
   });
 
-  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,70 +60,77 @@ export default function NewSalePage() {
     (a) => String(a.id) === form.animal_id
   );
 
-  useEffect(() => {
-    if (selectedAnimal && form.price_per_kg) {
-      const t =
-        Number(selectedAnimal.current_weight || 0) *
-        Number(form.price_per_kg);
-      setTotal(t);
-    } else {
-      setTotal(0);
-    }
-  }, [selectedAnimal, form.price_per_kg]);
+  const pricePerKg = Number(form.price_per_kg);
+  const validPrice = Number.isFinite(pricePerKg) && pricePerKg > 0;
+  const total = validPrice ? (selectedAnimal?.current_weight ?? 0) * pricePerKg : 0;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
+    if (loading) return;
     setError("");
 
     const animal = selectedAnimal;
     if (!animal) {
       setError("Выбери животное.");
-      setLoading(false);
       return;
     }
 
     if (!form.sale_date) {
       setError("Укажи дату продажи.");
-      setLoading(false);
       return;
     }
 
-    if (!form.price_per_kg) {
-      setError("Укажи цену за кг.");
-      setLoading(false);
+    if (!validPrice) {
+      setError("Цена за кг должна быть больше нуля.");
       return;
     }
 
-    const totalAmount =
-      Number(animal.current_weight || 0) * Number(form.price_per_kg);
+    setLoading(true);
+    const { error: saleError } = await supabase.rpc("record_sale", {
+      p_animal_id: animal.id,
+      p_sale_date: form.sale_date,
+      p_price_per_kg: pricePerKg,
+    });
 
-    const { error: insertError } = await supabase.from("sales").insert([
-      {
+    // Keep existing deployments usable until the database migration is applied.
+    if (saleError?.code === "PGRST202") {
+      const { error: insertError } = await supabase.from("sales").insert({
         animal_id: animal.id,
         batch_id: animal.batch_id,
         sale_date: form.sale_date,
         weight: animal.current_weight,
-        price_per_kg: Number(form.price_per_kg),
-        total_amount: totalAmount,
-      },
-    ]);
+        price_per_kg: pricePerKg,
+        total_amount: total,
+      });
 
-    if (insertError) {
-      console.error(insertError);
-      setError("Не удалось сохранить продажу.");
-      setLoading(false);
-      return;
-    }
+      if (insertError) {
+        setError(insertError.code === "23505"
+          ? "Продажа этого животного уже оформлена."
+          : "Не удалось сохранить продажу.");
+        setLoading(false);
+        return;
+      }
 
-    const { error: updateError } = await supabase
-      .from("livestock")
-      .update({ status: LIVESTOCK_STATUS.SOLD })
-      .eq("id", animal.id);
+      const { error: updateError } = await supabase
+        .from("livestock")
+        .update({ status: LIVESTOCK_STATUS.SOLD })
+        .eq("id", animal.id)
+        .select("id")
+        .single();
 
-    if (updateError) {
-      console.error(updateError);
-      setError("Продажа сохранена, но статус животного не обновился.");
+      if (updateError) {
+        setError("Продажа сохранена, но статус животного не обновился.");
+        setLoading(false);
+        return;
+      }
+    } else if (saleError) {
+      if (saleError.code === "23505") {
+        setError("Продажа этого животного уже оформлена.");
+      } else if (saleError.code === "23514" && saleError.message === "A positive finite current weight is required") {
+        setError("Укажи текущий вес животного перед продажей.");
+      } else {
+        setError("Не удалось сохранить продажу.");
+      }
       setLoading(false);
       return;
     }
@@ -202,7 +208,7 @@ export default function NewSalePage() {
               </div>
 
               <div className="rounded-2xl bg-[#f8faf7] p-4">
-                <p className="text-sm text-[#6b7280]">Итоговая сумма</p>
+                <p className="text-sm text-[#6b7280]">Предварительная сумма</p>
                 <p className="mt-1 text-2xl font-semibold text-[#1f4d3a]">
                   ₸ {total.toLocaleString("ru-RU")}
                 </p>

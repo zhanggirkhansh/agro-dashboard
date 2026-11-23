@@ -403,6 +403,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_sale: {
+        Args: {
+          p_animal_id: number
+          p_sale_date: string
+          p_price_per_kg: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
